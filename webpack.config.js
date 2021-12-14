@@ -1,17 +1,21 @@
+const path = require('path');
+
 module.exports = {
     entry: './src/app.js',
     output: {
-        path: './lib',
+        path: path.resolve(__dirname, "lib"),
         filename: 'app.bundle.js'
     },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components)/,
-                loader: 'babel', // 'babel-loader' is also a legal name to reference
-                query: {
-                    presets: ['es2015']
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
                 }
             }
         ]
