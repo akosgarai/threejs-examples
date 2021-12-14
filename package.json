@@ -9,6 +9,7 @@
   "author": "garaiakos",
   "license": "ISC",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "webpack": "^5.65.0"
   }
 }
