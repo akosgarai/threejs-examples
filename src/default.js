@@ -1,7 +1,9 @@
 import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh} from 'three';
 
 class DefaultScreen {
-    constructor() {}
+    constructor(screen) {
+        this.screenNode = screen;
+    }
     run() {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(
@@ -9,7 +11,7 @@ class DefaultScreen {
         );
         this.renderer = new WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(this.renderer.domElement);
+        this.screenNode.appendChild(this.renderer.domElement);
         const geometry = new BoxGeometry(1, 1, 1);
         const material = new MeshBasicMaterial({ color: 0x00ff00 });
         this.cube = new Mesh(geometry, material);
