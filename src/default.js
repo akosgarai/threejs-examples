@@ -4,6 +4,9 @@ class DefaultScreen {
     constructor(screen) {
         this.screenNode = screen;
     }
+    applicationName() {
+        return 'Default application';
+    }
     run() {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(

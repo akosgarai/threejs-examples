@@ -17,7 +17,7 @@ class Application {
         list.id = 'app-selector';
         list.name = 'app-selector';
         const label = document.createElement('label');
-        label.for = 'app-selector';
+        label.setAttribute('for', 'app-selector');
         label.textContent = 'Select application';
         label.appendChild(list);
         const defaultOptionNode = document.createElement('option');
@@ -28,7 +28,7 @@ class Application {
         this.apps.forEach((item, index) => {
             const optionNode = document.createElement('option');
             optionNode.value = index;
-            optionNode.textContent = index;
+            optionNode.textContent = item.applicationName();
             list.appendChild(optionNode);
         });
         list.addEventListener('change', (event) => {
