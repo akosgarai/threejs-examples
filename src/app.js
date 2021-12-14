@@ -1,28 +1,44 @@
-import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh} from 'three';
+import {DefaultScreen} from './default.js';
 
-const scene = new Scene();
-const camera = new PerspectiveCamera(
-	75, window.innerWidth / window.innerHeight, 0.1, 1000
-);
-
-const renderer = new WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-const geometry = new BoxGeometry(1, 1, 1);
-const material = new MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new Mesh(geometry, material);
-scene.add(cube);
-
-camera.position.z = 5;
-
-function render() {
-  window.requestAnimationFrame(render);
-
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-
-  renderer.render(scene, camera);
+class Application {
+    constructor() {
+        this.screen = document.querySelector('#screen');
+        this.applicationSelector = document.querySelector('#application-selector');
+        this.apps = [];
+        this.apps.push(new DefaultScreen(this.screen));
+    }
+    clearScreen() {
+        while (this.screen.firstChild) {
+            this.screen.removeChild(this.screen.lastChild);
+        }
+    }
+    buildSelectMenu() {
+        const list = document.createElement('select');
+        list.id = 'app-selector';
+        list.name = 'app-selector';
+        const label = document.createElement('label');
+        label.for = 'app-selector';
+        label.textContent = 'Select application';
+        label.appendChild(list);
+        const defaultOptionNode = document.createElement('option');
+        defaultOptionNode.value = '';
+        defaultOptionNode.textContent = ' -- Select -- ';
+        list.appendChild(defaultOptionNode);
+        this.applicationSelector.appendChild(label);
+        this.apps.forEach((item, index) => {
+            const optionNode = document.createElement('option');
+            optionNode.value = index;
+            optionNode.textContent = index;
+            list.appendChild(optionNode);
+        });
+        list.addEventListener('change', (event) => {
+            const value = event.target.value;
+            this.clearScreen();
+            if (value !== '') {
+                this.apps[value].run();
+            }
+        });
+    }
 }
-
-render();
+var app = new Application();
+app.buildSelectMenu();
