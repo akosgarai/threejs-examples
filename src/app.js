@@ -1,4 +1,5 @@
 import {DefaultScreen} from './default.js';
+import {AnimationLoopScreen} from './animationloop.js';
 
 class Application {
     constructor() {
@@ -6,6 +7,7 @@ class Application {
         this.applicationSelector = document.querySelector('#application-selector');
         this.apps = [];
         this.apps.push(new DefaultScreen(this.screen));
+        this.apps.push(new AnimationLoopScreen(this.screen));
     }
     clearScreen() {
         while (this.screen.firstChild) {
