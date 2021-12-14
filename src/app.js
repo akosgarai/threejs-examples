@@ -1,5 +1,6 @@
 import {DefaultScreen} from './default.js';
 import {AnimationLoopScreen} from './animationloop.js';
+import {StatsScreen} from './stats.js';
 
 class Application {
     constructor() {
@@ -8,6 +9,7 @@ class Application {
         this.apps = [];
         this.apps.push(new DefaultScreen(this.screen));
         this.apps.push(new AnimationLoopScreen(this.screen));
+        this.apps.push(new StatsScreen(this.screen));
     }
     clearScreen() {
         while (this.screen.firstChild) {
