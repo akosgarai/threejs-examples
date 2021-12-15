@@ -1,6 +1,7 @@
 import {DefaultScreen} from './default.js';
 import {AnimationLoopScreen} from './animationloop.js';
 import {StatsScreen} from './stats.js';
+import {GuiScreen} from './gui.js';
 
 class Application {
     constructor() {
@@ -10,8 +11,14 @@ class Application {
         this.apps.push(new DefaultScreen(this.screen));
         this.apps.push(new AnimationLoopScreen(this.screen));
         this.apps.push(new StatsScreen(this.screen));
+        this.apps.push(new GuiScreen(this.screen));
+        this.selectedApp = '';
     }
     clearScreen() {
+        // first stop the active screen.
+        if (this.selectedApp !== '') {
+            this.apps[this.selectedApp].stop();
+        }
         while (this.screen.firstChild) {
             this.screen.removeChild(this.screen.lastChild);
         }
@@ -36,10 +43,10 @@ class Application {
             list.appendChild(optionNode);
         });
         list.addEventListener('change', (event) => {
-            const value = event.target.value;
             this.clearScreen();
-            if (value !== '') {
-                this.apps[value].run();
+            this.selectedApp = event.target.value;
+            if (this.selectedApp !== '') {
+                this.apps[this.selectedApp].run();
             }
         });
     }
