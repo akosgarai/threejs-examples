@@ -1,13 +1,7 @@
 import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshNormalMaterial, Mesh} from 'three';
-import Stats from 'three/examples/jsm/libs/stats.module.js';
+import {BasicScreen} from './BasicScreen.js';
 
-class StatsScreen {
-    constructor(screen) {
-        this.screenNode = screen;
-    }
-    applicationName() {
-        return 'Stats screen';
-    }
+class StatsScreen extends BasicScreen {
     run() {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(
@@ -31,28 +25,14 @@ class StatsScreen {
         this.camera.lookAt(this.scene.position);
 
         // stats
-        this.buildStats();
+        this.buildFPSStats();
 
-        this.animate();
-    }
-    stop() {
-    }
-    animate() {
-        requestAnimationFrame(this.animate.bind(this));
-        this.render();
+        super.run();
     }
     render() {
-        this.renderer.render(this.scene, this.camera);
-        this.stats.update();
         this.scene.getObjectByName('cube').rotation.x += 0.01;
-    }
-    buildStats() {
-        this.stats = new Stats();
-        this.stats.setMode(0);
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.left = '0';
-        this.stats.domElement.style.top = '20px';
-        this.screenNode.appendChild(this.stats.domElement);
+
+        super.render();
     }
 }
 
