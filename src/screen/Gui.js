@@ -12,9 +12,6 @@ class GuiScreen extends BasicScreen {
         };
         super(name, screen, control);
     }
-    applicationName() {
-        return 'Gui screen';
-    }
     run() {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(
