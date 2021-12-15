@@ -1,17 +1,17 @@
-import {DefaultScreen} from './default.js';
-import {AnimationLoopScreen} from './animationloop.js';
-import {StatsScreen} from './stats.js';
-import {GuiScreen} from './gui.js';
+import {DefaultScreen} from './screen/Default.js';
+import {AnimationLoopScreen} from './screen/AnimationLoop.js';
+import {StatsScreen} from './screen/Stats.js';
+import {GuiScreen} from './screen/Gui.js';
 
 class Application {
     constructor() {
         this.screen = document.querySelector('#screen');
         this.applicationSelector = document.querySelector('#application-selector');
         this.apps = [];
-        this.apps.push(new DefaultScreen(this.screen));
-        this.apps.push(new AnimationLoopScreen(this.screen));
-        this.apps.push(new StatsScreen(this.screen));
-        this.apps.push(new GuiScreen(this.screen));
+        this.apps.push(new DefaultScreen('Default screen', this.screen));
+        this.apps.push(new AnimationLoopScreen('Animation Loop', this.screen));
+        this.apps.push(new StatsScreen('Stats screen', this.screen));
+        this.apps.push(new GuiScreen('Gui screen', this.screen));
         this.selectedApp = '';
     }
     clearScreen() {
