@@ -5,7 +5,9 @@ import {BasicScreen} from './BasicScreen.js';
 class GuiScreen extends BasicScreen {
     constructor(name, screen) {
         const control = new function() {
-            this.rotationSpeed = 0.005;
+            this.rotationSpeedX = 0.0;
+            this.rotationSpeedY = 0.0;
+            this.rotationSpeedZ = 0.0;
             this.scale = 1;
         };
         super(name, screen, control);
@@ -40,13 +42,17 @@ class GuiScreen extends BasicScreen {
 
         // GUI
         this.gui = new GUI();
-        this.gui.add(this.controls, 'rotationSpeed', -0.1, 0.1);
+        this.gui.add(this.controls, 'rotationSpeedX', -0.1, 0.1);
+        this.gui.add(this.controls, 'rotationSpeedY', -0.1, 0.1);
+        this.gui.add(this.controls, 'rotationSpeedZ', -0.1, 0.1);
         this.gui.add(this.controls, 'scale', 0.01, 2);
 
         super.run();
     }
     render() {
-        this.scene.getObjectByName('cube').rotation.x += this.controls.rotationSpeed;
+        this.scene.getObjectByName('cube').rotation.x += this.controls.rotationSpeedX;
+        this.scene.getObjectByName('cube').rotation.y += this.controls.rotationSpeedY;
+        this.scene.getObjectByName('cube').rotation.z += this.controls.rotationSpeedZ;
         this.scene.getObjectByName('cube').scale.set(this.controls.scale, this.controls.scale, this.controls.scale);
 
         super.render();
