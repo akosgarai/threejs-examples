@@ -1,7 +1,8 @@
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 class BasicScreen {
-    constructor(screen, controls) {
+    constructor(name, screen, controls) {
+        this.name = name;
         this.screenNode = screen;
         this.controls = controls || new function() {};
         this.gui = null;
@@ -9,18 +10,6 @@ class BasicScreen {
         this.renderer = null;
         this.camera = null;
         this.scene = null;
-    }
-    setGUI(gui) {
-        this.gui = gui;
-    }
-    setRenderer(renderer) {
-        this.renderer = renderer;
-    }
-    setCamera(camera) {
-        this.camera = camera;
-    }
-    setScene(scene) {
-        this.scene = scene;
     }
     run() {
     }
@@ -48,6 +37,9 @@ class BasicScreen {
         if (this.stats !== null) {
             this.stats.update();
         }
+    }
+    applicationName() {
+        return this.name;
     }
 }
 
