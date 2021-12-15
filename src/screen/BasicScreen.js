@@ -12,6 +12,7 @@ class BasicScreen {
         this.scene = null;
     }
     run() {
+        this.animate();
     }
     stop() {
         if (this.gui !== null) {
