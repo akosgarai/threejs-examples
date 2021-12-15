@@ -35,6 +35,8 @@ class StatsScreen {
 
         this.animate();
     }
+    stop() {
+    }
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         this.render();

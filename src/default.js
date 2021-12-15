@@ -24,6 +24,8 @@ class DefaultScreen {
 
         this.animate();
     }
+    stop() {
+    }
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         this.render();

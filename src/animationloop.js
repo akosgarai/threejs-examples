@@ -31,6 +31,8 @@ class AnimationLoopScreen {
 
         this.animate();
     }
+    stop() {
+    }
     animate() {
         requestAnimationFrame(this.animate.bind(this));
         this.render();
