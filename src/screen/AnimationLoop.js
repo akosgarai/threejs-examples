@@ -1,18 +1,14 @@
 import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshNormalMaterial, Mesh} from 'three';
+import {BasicScreen} from './BasicScreen.js';
 
-class AnimationLoopScreen {
-    constructor(screen) {
-        this.screenNode = screen;
-    }
-    applicationName() {
-        return 'Animation Loop';
-    }
+class AnimationLoopScreen extends BasicScreen {
     run() {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(
             45, window.innerWidth / window.innerHeight, 0.1, 1000
         );
         this.renderer = new WebGLRenderer();
+
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x000000, 1.0);
         this.screenNode.appendChild(this.renderer.domElement);
@@ -31,16 +27,10 @@ class AnimationLoopScreen {
 
         this.animate();
     }
-    stop() {
-    }
-    animate() {
-        requestAnimationFrame(this.animate.bind(this));
-        this.render();
-    }
     render() {
         this.scene.getObjectByName('cube').rotation.x += 0.01;
 
-        this.renderer.render(this.scene, this.camera);
+        super.render();
     }
 }
 
