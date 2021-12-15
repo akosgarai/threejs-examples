@@ -21,6 +21,7 @@
     "webpack-cli": "^4.9.1"
   },
   "dependencies": {
+    "lil-gui": "^0.15.0",
     "path": "^0.12.7",
     "three": "^0.135.0"
   }
