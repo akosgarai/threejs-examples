@@ -25,7 +25,7 @@ class AnimationLoopScreen extends BasicScreen {
         this.camera.position.z = 13;
         this.camera.lookAt(this.scene.position);
 
-        this.animate();
+        super.run();
     }
     render() {
         this.scene.getObjectByName('cube').rotation.x += 0.01;

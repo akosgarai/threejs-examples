@@ -19,7 +19,7 @@ class DefaultScreen extends BasicScreen {
 
         this.camera.position.z = 5;
 
-        this.animate();
+        super.run();
     }
     render() {
         this.scene.getObjectByName('cube').rotation.x += 0.01;
