@@ -2,7 +2,7 @@ import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshNormalMaterial
 import {BasicScreen} from './BasicScreen.js';
 
 class StatsScreen extends BasicScreen {
-    run() {
+    run(gui) {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(
             45, window.innerWidth / window.innerHeight, 0.1, 1000
@@ -27,7 +27,7 @@ class StatsScreen extends BasicScreen {
         // stats
         this.buildFPSStats();
 
-        super.run();
+        super.run(gui);
     }
     render() {
         this.scene.getObjectByName('cube').rotation.x += 0.01;

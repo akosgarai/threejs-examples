@@ -1,5 +1,4 @@
 import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshNormalMaterial, Mesh} from 'three';
-import GUI from 'lil-gui';
 import {BasicScreen} from './BasicScreen.js';
 
 class GuiScreen extends BasicScreen {
@@ -12,7 +11,7 @@ class GuiScreen extends BasicScreen {
         };
         super(name, screen, control);
     }
-    run() {
+    run(gui) {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(
             45, window.innerWidth / window.innerHeight, 0.1, 1000
@@ -38,13 +37,12 @@ class GuiScreen extends BasicScreen {
         this.buildFPSStats();
 
         // GUI
-        this.gui = new GUI();
-        this.gui.add(this.controls, 'rotationSpeedX', -0.1, 0.1);
-        this.gui.add(this.controls, 'rotationSpeedY', -0.1, 0.1);
-        this.gui.add(this.controls, 'rotationSpeedZ', -0.1, 0.1);
-        this.gui.add(this.controls, 'scale', 0.01, 2);
+        gui.add(this.controls, 'rotationSpeedX', -0.1, 0.1);
+        gui.add(this.controls, 'rotationSpeedY', -0.1, 0.1);
+        gui.add(this.controls, 'rotationSpeedZ', -0.1, 0.1);
+        gui.add(this.controls, 'scale', 0.01, 2);
 
-        super.run();
+        super.run(gui);
     }
     render() {
         this.scene.getObjectByName('cube').rotation.x += this.controls.rotationSpeedX;

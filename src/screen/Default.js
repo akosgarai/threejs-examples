@@ -2,7 +2,7 @@ import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial,
 import {BasicScreen} from './BasicScreen.js';
 
 class DefaultScreen extends BasicScreen {
-    run() {
+    run(gui) {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(
             75, window.innerWidth / window.innerHeight, 0.1, 1000
@@ -19,7 +19,7 @@ class DefaultScreen extends BasicScreen {
 
         this.camera.position.z = 5;
 
-        super.run();
+        super.run(gui);
     }
     render() {
         this.scene.getObjectByName('cube').rotation.x += 0.01;

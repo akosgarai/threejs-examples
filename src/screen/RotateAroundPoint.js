@@ -1,5 +1,4 @@
 import {Scene, PerspectiveCamera, WebGLRenderer, SphereGeometry, BoxGeometry, MeshLambertMaterial, Mesh, PCFSoftShadowMap, Object3D, SpotLight} from 'three';
-import GUI from 'lil-gui';
 import {BasicScreen} from './BasicScreen.js';
 
 class RotationAroundPointScreen extends BasicScreen {
@@ -19,7 +18,7 @@ class RotationAroundPointScreen extends BasicScreen {
         };
         super(name, screen, control);
     }
-    run() {
+    run(gui) {
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         this.scene = new Scene();
         // create a camera, which defines where we're looking at.
@@ -68,27 +67,26 @@ class RotationAroundPointScreen extends BasicScreen {
         light.shadowCameraFar = 100;
         this.scene.add(light);
         // GUI
-        this.gui = new GUI();
-        this.gui.add(this.controls, 'sphereRotationSpeedX', -0.1, 0.1);
-        this.gui.add(this.controls, 'sphereRotationSpeedY', -0.1, 0.1);
-        this.gui.add(this.controls, 'sphereRotationSpeedZ', -0.1, 0.1);
-        this.gui.add(this.controls, 'rotationX').onChange((v) => {
+        gui.add(this.controls, 'sphereRotationSpeedX', -0.1, 0.1);
+        gui.add(this.controls, 'sphereRotationSpeedY', -0.1, 0.1);
+        gui.add(this.controls, 'sphereRotationSpeedZ', -0.1, 0.1);
+        gui.add(this.controls, 'rotationX').onChange((v) => {
             this.scene.getObjectByName('pivot').rotation.x = v;
         });
-        this.gui.add(this.controls, 'rotationY').onChange((v) => {
+        gui.add(this.controls, 'rotationY').onChange((v) => {
             this.scene.getObjectByName('pivot').rotation.y = v;
         });
-        this.gui.add(this.controls, 'rotationZ').onChange((v) => {
+        gui.add(this.controls, 'rotationZ').onChange((v) => {
             this.scene.getObjectByName('pivot').rotation.z = v;
         });
-        this.gui.add(this.controls, 'cubeRotationSpeedX', -0.1, 0.1);
-        this.gui.add(this.controls, 'cubeRotationSpeedY', -0.1, 0.1);
-        this.gui.add(this.controls, 'cubeRotationSpeedZ', -0.1, 0.1);
+        gui.add(this.controls, 'cubeRotationSpeedX', -0.1, 0.1);
+        gui.add(this.controls, 'cubeRotationSpeedY', -0.1, 0.1);
+        gui.add(this.controls, 'cubeRotationSpeedZ', -0.1, 0.1);
         //
         // stats
         this.buildFPSStats();
 
-        super.run();
+        super.run(gui);
     }
     render() {
         this.scene.getObjectByName('pivot').rotation.x += this.controls.sphereRotationSpeedX;
