@@ -11,7 +11,8 @@ class BasicScreen {
         this.camera = null;
         this.scene = null;
     }
-    run() {
+    run(gui) {
+        this.gui = gui;
         this.animate();
     }
     stop() {
@@ -24,7 +25,7 @@ class BasicScreen {
         this.stats.setMode(0);
         this.stats.domElement.style.position = 'absolute';
         this.stats.domElement.style.left = '0';
-        this.stats.domElement.style.top = '20px';
+        this.stats.domElement.style.top = '0';
         this.screenNode.appendChild(this.stats.domElement);
     }
     animate() {
