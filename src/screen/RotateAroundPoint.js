@@ -84,6 +84,9 @@ class RotationAroundPointScreen extends BasicScreen {
         this.gui.add(this.controls, 'cubeRotationSpeedX', -0.1, 0.1);
         this.gui.add(this.controls, 'cubeRotationSpeedY', -0.1, 0.1);
         this.gui.add(this.controls, 'cubeRotationSpeedZ', -0.1, 0.1);
+        //
+        // stats
+        this.buildFPSStats();
 
         super.run();
     }
