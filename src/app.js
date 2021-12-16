@@ -1,3 +1,5 @@
+import GUI from 'lil-gui';
+
 import {DefaultScreen} from './screen/Default.js';
 import {AnimationLoopScreen} from './screen/AnimationLoop.js';
 import {StatsScreen} from './screen/Stats.js';
@@ -7,51 +9,52 @@ import {RotationAroundPointScreen} from './screen/RotateAroundPoint.js';
 class Application {
     constructor() {
         this.screen = document.querySelector('#screen');
-        this.applicationSelector = document.querySelector('#application-selector');
         this.apps = [];
         this.apps.push(new DefaultScreen('Default screen', this.screen));
         this.apps.push(new AnimationLoopScreen('Animation Loop', this.screen));
         this.apps.push(new StatsScreen('Stats screen', this.screen));
         this.apps.push(new GuiScreen('Gui screen', this.screen));
         this.apps.push(new RotationAroundPointScreen('Rotation around point', this.screen));
-        this.selectedApp = '';
+        this.controls = new function() {
+            this.selectedApp = '';
+        };
+        this.gui = null;
     }
     clearScreen() {
         // first stop the active screen.
-        if (this.selectedApp !== '') {
-            this.apps[this.selectedApp].stop();
+        if (this.controls.selectedApp !== '') {
+            this.apps[this.controls.selectedApp].stop();
         }
         while (this.screen.firstChild) {
             this.screen.removeChild(this.screen.lastChild);
         }
+        this.initGUI();
     }
-    buildSelectMenu() {
-        const list = document.createElement('select');
-        list.id = 'app-selector';
-        list.name = 'app-selector';
-        const label = document.createElement('label');
-        label.setAttribute('for', 'app-selector');
-        label.textContent = 'Select application';
-        label.appendChild(list);
-        const defaultOptionNode = document.createElement('option');
-        defaultOptionNode.value = '';
-        defaultOptionNode.textContent = ' -- Select -- ';
-        list.appendChild(defaultOptionNode);
-        this.applicationSelector.appendChild(label);
+    initGUI() {
+        // destroy the GUI if we have.
+        if (this.gui !== null) {
+            this.gui.destroy();
+        }
+        // create a new gui instance.
+        this.gui = new GUI();
+        // create options with the default value.
+        let options = {
+            ' -- Select -- ': '',
+        };
+        // extend options with the installed applications.
         this.apps.forEach((item, index) => {
-            const optionNode = document.createElement('option');
-            optionNode.value = index;
-            optionNode.textContent = item.applicationName();
-            list.appendChild(optionNode);
+            options[item.applicationName()] = index;
         });
-        list.addEventListener('change', (event) => {
-            this.clearScreen();
-            this.selectedApp = event.target.value;
-            if (this.selectedApp !== '') {
-                this.apps[this.selectedApp].run();
-            }
-        });
+        // add select to gui with custom change function.
+        this.gui.add( this.controls, 'selectedApp', options )
+            .name( 'Application' )
+            .onChange( value => {
+                this.clearScreen();
+                if (value !== '') {
+                    this.apps[value].run(this.gui);
+                }
+            } );
     }
 }
 var app = new Application();
-app.buildSelectMenu();
+app.clearScreen();
