@@ -6,6 +6,7 @@ import {StatsScreen} from './screen/Stats.js';
 import {GuiScreen} from './screen/Gui.js';
 import {RotationAroundPointScreen} from './screen/RotateAroundPoint.js';
 import {HeightMapScreen} from './screen/HeightMapPng.js';
+import {ObjectLookAtScreen} from './screen/ObjectLookAt.js';
 
 class Application {
     constructor() {
@@ -17,6 +18,7 @@ class Application {
         this.apps.push(new GuiScreen('Gui screen', this.screen));
         this.apps.push(new RotationAroundPointScreen('Rotation around point', this.screen));
         this.apps.push(new HeightMapScreen('Height map from PNG', this.screen));
+        this.apps.push(new ObjectLookAtScreen('Object look at', this.screen));
         this.controls = new function() {
             this.selectedApp = '';
         };
