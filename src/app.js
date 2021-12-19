@@ -8,6 +8,7 @@ import {RotationAroundPointScreen} from './screen/RotateAroundPoint.js';
 import {HeightMapScreen} from './screen/HeightMapPng.js';
 import {ObjectLookAtScreen} from './screen/ObjectLookAt.js';
 import {ParametricGeometryScreen} from './screen/ParametricGeometry.js';
+import {SplineCurveScreen} from './screen/SplineCurve.js';
 
 class Application {
     constructor() {
@@ -21,6 +22,7 @@ class Application {
         this.apps.push(new HeightMapScreen('Height map from PNG', this.screen));
         this.apps.push(new ObjectLookAtScreen('Object look at', this.screen));
         this.apps.push(new ParametricGeometryScreen('Parametric geometry', this.screen));
+        this.apps.push(new SplineCurveScreen('Draw spline', this.screen));
         this.controls = new function() {
             this.selectedApp = '';
         };
