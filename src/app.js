@@ -11,6 +11,7 @@ import {ParametricGeometryScreen} from './screen/ParametricGeometry.js';
 import {SplineCurveScreen} from './screen/SplineCurve.js';
 import {ObjectMaterialLoaderScreen} from './screen/ObjectMaterialLoader.js';
 import {CameraFollowObjectScreen} from './screen/CameraFollowObject.js';
+import {CameraZoomScreen} from './screen/CameraZoom.js';
 
 class Application {
     constructor() {
@@ -27,6 +28,7 @@ class Application {
         this.apps.push(new SplineCurveScreen('Draw spline', this.screen));
         this.apps.push(new ObjectMaterialLoaderScreen('Object and material loading', this.screen));
         this.apps.push(new CameraFollowObjectScreen('Camera follows an object', this.screen));
+        this.apps.push(new CameraZoomScreen('Camera zoom', this.screen));
         this.controls = new function() {
             this.selectedApp = '';
         };
