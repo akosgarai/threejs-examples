@@ -9,6 +9,7 @@ import {HeightMapScreen} from './screen/HeightMapPng.js';
 import {ObjectLookAtScreen} from './screen/ObjectLookAt.js';
 import {ParametricGeometryScreen} from './screen/ParametricGeometry.js';
 import {SplineCurveScreen} from './screen/SplineCurve.js';
+import {ObjectMaterialLoaderScreen} from './screen/ObjectMaterialLoader.js';
 
 class Application {
     constructor() {
@@ -23,6 +24,7 @@ class Application {
         this.apps.push(new ObjectLookAtScreen('Object look at', this.screen));
         this.apps.push(new ParametricGeometryScreen('Parametric geometry', this.screen));
         this.apps.push(new SplineCurveScreen('Draw spline', this.screen));
+        this.apps.push(new ObjectMaterialLoaderScreen('Object and material loading', this.screen));
         this.controls = new function() {
             this.selectedApp = '';
         };
