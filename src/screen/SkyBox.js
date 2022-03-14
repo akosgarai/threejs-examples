@@ -2,6 +2,7 @@ import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, Mesh, TextureLoade
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import {BasicScreen} from './BasicScreen.js';
 
+// Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
 class SkyBoxScreen extends BasicScreen {
     constructor(name, screen) {
         const control = new function() {
@@ -30,10 +31,8 @@ class SkyBoxScreen extends BasicScreen {
         this.orbitControls.enabled = true;
         this.orbitControls.minDistance = 700;
         this.orbitControls.maxDistance = 1500;
-        this.orbitControls.autoRotate = true;
-        this.orbitControls.autoRotateSpeed = 1.0;
 
-        const skyBoxGeo = new BoxGeometry(10000, 10000, 10000);
+        const skyBoxGeo = new BoxGeometry(20000, 20000, 20000);
         const skyBoxMat = this.createSkyBoxMaterial('skybox');
         const skyBox = new Mesh(skyBoxGeo, skyBoxMat);
         skyBox.name = 'skyBox';
@@ -49,7 +48,7 @@ class SkyBoxScreen extends BasicScreen {
         const basePath = './assets/skybox/';
         const baseFilename = basePath + filename;
         const fileType = '.png';
-        const sides = ['front', 'back', 'top', 'bottom', 'right', 'left'];
+        const sides = ['right', 'left', 'top', 'bottom', 'front', 'back'];
         const pathStings = sides.map(side => {
             return baseFilename + '-' + side + fileType;
         });
