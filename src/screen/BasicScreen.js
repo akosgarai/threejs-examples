@@ -12,6 +12,7 @@ class BasicScreen {
         this.scene = null;
     }
     run(gui) {
+        window.addEventListener('resize', this.onWindowResize.bind(this), false);
         this.gui = gui;
         this.animate();
     }
@@ -42,6 +43,11 @@ class BasicScreen {
     }
     applicationName() {
         return this.name;
+    }
+    onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 }
 
