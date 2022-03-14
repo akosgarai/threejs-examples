@@ -13,6 +13,7 @@ import {ObjectMaterialLoaderScreen} from './screen/ObjectMaterialLoader.js';
 import {CameraFollowObjectScreen} from './screen/CameraFollowObject.js';
 import {CameraZoomScreen} from './screen/CameraZoom.js';
 import {OrtographicCameraScreen} from './screen/OrtographicCamera.js';
+import {SkyBoxScreen} from './screen/SkyBox.js';
 
 class Application {
     constructor() {
@@ -31,6 +32,7 @@ class Application {
         this.apps.push(new CameraFollowObjectScreen('Camera follows an object', this.screen));
         this.apps.push(new CameraZoomScreen('Camera zoom', this.screen));
         this.apps.push(new OrtographicCameraScreen('Ortographic camera', this.screen));
+        this.apps.push(new SkyBoxScreen('SkyBox example', this.screen));
         this.controls = new function() {
             this.selectedApp = '';
         };
