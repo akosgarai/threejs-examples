@@ -1,4 +1,4 @@
-import {Scene, PerspectiveCamera, WebGLRenderer, DirectionalLight} from 'three';
+import {Scene, PerspectiveCamera, WebGLRenderer, DirectionalLight, Vector3} from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {BasicScreen} from './BasicScreen.js';
 import {SkyBox} from '../meshes/SkyBox.js';
@@ -17,14 +17,15 @@ class KeyboardControlScreen extends BasicScreen {
         this.truckSpeedController = null;
         this.truckSpeedMin = 0.0;
         this.truckSpeedMax = 100;
+        this.lastRenderTime = Date.now();
+        this.epsilon = 15;
+        this.cameraOffsetVector = new Vector3(0, 30, 200);
     }
     run(gui) {
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         this.scene = new Scene();
         // create a camera, which defines where we're looking at.
         this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-        // position and point the camera to the center of the scene
-        this.camera.position.set(0, 0, 400);
         // create a render, sets the background color and the size
         this.renderer = new WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -44,6 +45,10 @@ class KeyboardControlScreen extends BasicScreen {
         truck.position.set(0, -30, 200);
         this.scene.add(truck);
 
+        // position and point the camera to the truck
+        const cameraPosition = new Vector3(truck.position.x, truck.position.y, truck.position.z);
+        cameraPosition.add(this.cameraOffsetVector);
+        this.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
         this.camera.lookAt(truck.position);
 
         const directionalLight = new DirectionalLight();
@@ -55,11 +60,28 @@ class KeyboardControlScreen extends BasicScreen {
 
         window.addEventListener('keydown', this.truckControls.bind(this), false);
         this.truckSpeedController = gui.add(this.controls, 'truckSpeed', this.truckSpeedMin, this.truckSpeedMax);
+        this.lastRenderTime = Date.now();
 
         super.run(gui);
     }
     render() {
         this.orbitControls.update();
+        const now = Date.now();
+        const delta = now - this.lastRenderTime;
+        const truck = this.scene.getObjectByName(this.truckName);
+        if (delta > this.epsilon) {
+            this.lastRenderTime = now;
+            if (this.controls.truckSpeed > 0) {
+                const forward = new Vector3(0,0,-1);
+                const axis = new Vector3(0,1,0);
+                forward.applyAxisAngle(axis, truck.rotation.y);
+                forward.multiplyScalar(delta*this.controls.truckSpeed/1000);
+                truck.position.add(forward);
+                // position and point the camera to the truck
+                this.camera.position.add(forward);
+            }
+        }
+        this.camera.lookAt(truck.position);
         super.render();
     }
     truckControls(event) {
