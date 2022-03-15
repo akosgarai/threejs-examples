@@ -2,6 +2,7 @@ import {Scene, PerspectiveCamera, WebGLRenderer, DirectionalLight} from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {BasicScreen} from './BasicScreen.js';
 import {SkyBox} from '../meshes/SkyBox.js';
+import {SphereWithTexture} from '../meshes/Spheres.js';
 import {Truck} from '../meshes/groups/Truck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
@@ -42,6 +43,9 @@ class KeyboardControlScreen extends BasicScreen {
         const directionalLight = new DirectionalLight();
         directionalLight.position.set(-500, 200, 300);
         this.scene.add(directionalLight);
+
+        const earth = new SphereWithTexture('planet-earth', 'earth.jpg', 30, 32, 32).getMesh();
+        this.scene.add(earth);
 
         super.run(gui);
     }
