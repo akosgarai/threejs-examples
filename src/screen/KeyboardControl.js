@@ -1,4 +1,4 @@
-import {Scene, PerspectiveCamera, WebGLRenderer} from 'three';
+import {Scene, PerspectiveCamera, WebGLRenderer, DirectionalLight} from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {BasicScreen} from './BasicScreen.js';
 import {SkyBox} from '../meshes/SkyBox.js';
@@ -38,6 +38,10 @@ class KeyboardControlScreen extends BasicScreen {
         this.scene.add(truck);
 
         this.camera.lookAt(truck.position);
+
+        const directionalLight = new DirectionalLight();
+        directionalLight.position.set(-500, 200, 300);
+        this.scene.add(directionalLight);
 
         super.run(gui);
     }
