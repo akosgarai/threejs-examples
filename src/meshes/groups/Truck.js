@@ -4,7 +4,7 @@ import {RectangleWithColor} from '../Rectangles.js';
  * This class represents a basic Mesh group that looks like a truck.
  */
 class Truck {
-    constructor() {
+    constructor(groupName) {
         this.wheelColor = 0x333333;
         this.wheelSize = {
             'w': 10,
@@ -13,6 +13,7 @@ class Truck {
         };
         this.truckColor = 0xff0000;
         this.windowColor = 0xfefefe;
+        this.groupName = groupName;
     }
     getGroup() {
         const group = new Group();
@@ -37,6 +38,8 @@ class Truck {
         const cabin = new RectangleWithColor(8, 6, 6, this.truckColor).getMesh();
         cabin.position.set(0, 10.5, -5);
         group.add(cabin);
+
+        group.name = this.groupName;
 
         return group;
     }
