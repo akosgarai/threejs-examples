@@ -2,6 +2,7 @@ import {Scene, PerspectiveCamera, WebGLRenderer} from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {BasicScreen} from './BasicScreen.js';
 import {SkyBox} from '../meshes/SkyBox.js';
+import {Truck} from '../meshes/groups/Truck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
 class KeyboardControlScreen extends BasicScreen {
@@ -15,12 +16,9 @@ class KeyboardControlScreen extends BasicScreen {
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         this.scene = new Scene();
         // create a camera, which defines where we're looking at.
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 45, 30000);
+        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
         // position and point the camera to the center of the scene
-        this.camera.position.x = 1200;
-        this.camera.position.y = -250;
-        this.camera.position.z = 2000;
-        this.camera.lookAt(this.scene.position);
+        this.camera.position.set(0, 0, 400);
         // create a render, sets the background color and the size
         this.renderer = new WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -30,11 +28,16 @@ class KeyboardControlScreen extends BasicScreen {
         // orbit controls config
         this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
         this.orbitControls.enabled = true;
-        this.orbitControls.minDistance = 700;
-        this.orbitControls.maxDistance = 1500;
+        this.orbitControls.enableZoom = false;
 
-        const skyBox = new SkyBox('skyBox', 'skybox', 20000).getSkyBox();
+        const skyBox = new SkyBox('skyBox', 'skybox', 1000).getSkyBox();
         this.scene.add(skyBox);
+
+        const truck = new Truck().getGroup();
+        truck.position.set(0, -30, 200);
+        this.scene.add(truck);
+
+        this.camera.lookAt(truck.position);
 
         super.run(gui);
     }
