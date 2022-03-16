@@ -10,15 +10,15 @@ class KeyboardControlScreen extends BasicScreen {
     constructor(name, screen) {
         const control = new function() {
             this.truckSpeed = 0.0;
+            this.truckRotationY = 0.0;
+            this.truckSpeedMin = 0.0;
+            this.truckSpeedMax = 100;
+            this.epsilon = 15;
         };
         super(name, screen, control);
         this.orbitControls = null;
         this.truckName = 'truck';
-        this.truckSpeedController = null;
-        this.truckSpeedMin = 0.0;
-        this.truckSpeedMax = 100;
         this.lastRenderTime = Date.now();
-        this.epsilon = 15;
         this.cameraOffsetVector = new Vector3(0, 30, 200);
     }
     run(gui) {
@@ -59,7 +59,8 @@ class KeyboardControlScreen extends BasicScreen {
         this.scene.add(earth);
 
         window.addEventListener('keydown', this.truckControls.bind(this), false);
-        this.truckSpeedController = gui.add(this.controls, 'truckSpeed', this.truckSpeedMin, this.truckSpeedMax);
+        gui.add(this.controls, 'truckSpeed', this.controls.truckSpeedMin, this.controls.truckSpeedMax);
+        gui.add(this.controls, 'truckRotationY').onChange((v) => { truck.rotation.y = v; });
         this.lastRenderTime = Date.now();
 
         super.run(gui);
@@ -69,7 +70,7 @@ class KeyboardControlScreen extends BasicScreen {
         const now = Date.now();
         const delta = now - this.lastRenderTime;
         const truck = this.scene.getObjectByName(this.truckName);
-        if (delta > this.epsilon) {
+        if (delta > this.controls.epsilon) {
             this.lastRenderTime = now;
             if (this.controls.truckSpeed > 0) {
                 const forward = new Vector3(0,0,-1);
@@ -99,19 +100,28 @@ class KeyboardControlScreen extends BasicScreen {
             case 'ArrowUp':
             case 'KeyW':
                 this.controls.truckSpeed += 0.02;
-                if (this.controls.truckSpeed > this.truckSpeedMax) {
-                    this.controls.truckSpeed = this.truckSpeedMax;
+                if (this.controls.truckSpeed > this.controls.truckSpeedMax) {
+                    this.controls.truckSpeed = this.controls.truckSpeedMax;
                 }
                 break;
             case 'ArrowDown':
             case 'KeyS':
                 this.controls.truckSpeed -= 0.02;
-                if (this.controls.truckSpeed < this.truckSpeedMin) {
-                    this.controls.truckSpeed = this.truckSpeedMin;
+                if (this.controls.truckSpeed < this.controls.truckSpeedMin) {
+                    this.controls.truckSpeed = this.controls.truckSpeedMin;
                 }
                 break;
         }
-        this.truckSpeedController.setValue(this.controls.truckSpeed);
+        this.gui.controllers.forEach((item, index) => {
+            switch (item._name) {
+                case 'truckSpeed':
+                    item.setValue(this.controls.truckSpeed);
+                    break;
+                case 'truckRotationY':
+                    item.setValue(truck.rotation.y);
+                    break;
+            }
+        })
     }
 }
 
