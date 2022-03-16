@@ -18,6 +18,7 @@ class KeyboardControlScreen extends BasicScreen {
         super(name, screen, control);
         this.orbitControls = null;
         this.truckName = 'truck';
+        this.skyBoxName = 'skyBox';
         this.lastRenderTime = Date.now();
         this.cameraOffsetVector = new Vector3(0, 30, 200);
     }
@@ -25,7 +26,7 @@ class KeyboardControlScreen extends BasicScreen {
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         this.scene = new Scene();
         // create a camera, which defines where we're looking at.
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
         // create a render, sets the background color and the size
         this.renderer = new WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -38,11 +39,12 @@ class KeyboardControlScreen extends BasicScreen {
         this.orbitControls.enableZoom = false;
         this.orbitControls.enablePan = true;
 
-        const skyBox = new SkyBox('skyBox', 'skybox', 1000).getSkyBox();
+        const skyBox = new SkyBox(this.skyBoxName, 'skybox', 10000).getSkyBox();
         this.scene.add(skyBox);
 
         const truck = new Truck(this.truckName).getGroup();
         truck.position.set(0, -30, 200);
+        skyBox.position.set(truck.position.x, truck.position.y, truck.position.z);
         this.scene.add(truck);
 
         // position and point the camera to the truck
@@ -82,6 +84,8 @@ class KeyboardControlScreen extends BasicScreen {
                 this.camera.position.add(forward);
             }
         }
+        const skyBox = this.scene.getObjectByName(this.skyBoxName);
+        skyBox.position.set(truck.position.x, truck.position.y, truck.position.z);
         this.camera.lookAt(truck.position);
         super.render();
     }
