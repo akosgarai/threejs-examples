@@ -32,4 +32,4 @@ jobs:
           git add lib/app.bundle*
           mv lib/bkp.gitignore lib/.gitignore
           git commit -m "Automated library commit"
-          git push origin build
+          git push -f origin build
