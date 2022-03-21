@@ -25,7 +25,7 @@ jobs:
           git config --global user.name 'Action Service Account'
           git config --global user.email 'no-reply@github.com'
           mv lib/.gitignore lib/bkp.gitignore
-          git add libs/app.bundle*
+          git add lib/app.bundle*
           mv lib/bkp.gitignore lib/.gitignore
           git commit -m "Automated library commit"
           git push
