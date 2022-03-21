@@ -18,16 +18,18 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
+      - name: Reset to the latest codebase.
+        run: |
+          git config --global user.name 'Action Service Account'
+          git config --global user.email 'no-reply@github.com'
+          git fetch
+          git reset --hard origin/main
       - name: Build the application
         run: | 
           npm install
           npm run build
       - name: Commit libs
         run: |
-          git config --global user.name 'Action Service Account'
-          git config --global user.email 'no-reply@github.com'
-          git fetch
-          git reset --hard origin/main
           mv lib/.gitignore lib/bkp.gitignore
           git add lib/app.bundle*
           mv lib/bkp.gitignore lib/.gitignore
