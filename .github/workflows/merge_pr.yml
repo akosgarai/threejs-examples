@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Check out the codebase 
         uses: actions/checkout@v2
+        with:
           ref: build
       - name: Setup the node js.
         uses: actions/setup-node@v2
