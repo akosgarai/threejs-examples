@@ -71,10 +71,34 @@ class Application {
             .onChange( value => {
                 this.clearScreen();
                 if (value !== '') {
+                    // change the url with history API
+                    let appURL = window.location.origin + window.location.pathname + '?app=' + value;
+                    window.history.pushState({}, '', appURL);
                     this.apps[value].run(this.gui);
+                } else {
+                    // change the url with history API
+                    let appURL = window.location.origin + window.location.pathname;
+                    window.history.pushState({}, '', appURL);
                 }
             } );
+    }
+    handleQuery() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('app')) {
+            const app = params.get('app');
+            if (typeof this.apps[app] === 'undefined') {
+                return;
+            }
+            this.gui.controllers.forEach((item, index) => {
+                switch (item._name) {
+                    case 'Application':
+                        item.setValue(app);
+                        break;
+                }
+            });
+        }
     }
 }
 var app = new Application();
 app.clearScreen();
+app.handleQuery();
