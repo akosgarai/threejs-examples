@@ -4,6 +4,7 @@ As i found the toolchan for generating javascript code from go code, i decided t
 
 The main goal is to write the application in js that i want to implement with the golang libs later. I want to see the necessary js functions to be able to find the good golang functions or solutions.
 
+For experimental purposes, the google analytics tool has been added to the applicaton.
 
 [Demo](https://akosgarai.github.io/threejs-examples/)
 
