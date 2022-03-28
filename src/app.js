@@ -71,14 +71,10 @@ class Application {
             .onChange( value => {
                 this.clearScreen();
                 if (value !== '') {
-                    // change the url with history API
-                    let appURL = window.location.origin + window.location.pathname + '?app=' + value;
-                    window.history.pushState({}, '', appURL);
+                    this.changePage(window.location.origin + window.location.pathname + '?app=' + value);
                     this.apps[value].run(this.gui);
                 } else {
-                    // change the url with history API
-                    let appURL = window.location.origin + window.location.pathname;
-                    window.history.pushState({}, '', appURL);
+                    this.changePage(window.location.origin + window.location.pathname);
                 }
             } );
     }
@@ -97,6 +93,13 @@ class Application {
                 }
             });
         }
+    }
+    changePage(url) {
+        // change the url with history API
+        window.history.pushState({}, '', url);
+        // send page wiew event
+        ga('set', 'page', window.location.pathname + window.location.search);
+        ga('send', 'pageview');
     }
 }
 var app = new Application();
