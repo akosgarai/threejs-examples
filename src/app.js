@@ -88,18 +88,25 @@ class Application {
             this.gui.controllers.forEach((item, index) => {
                 switch (item._name) {
                     case 'Application':
-                        item.setValue(app);
+                        item.setValue(parseInt(app));
                         break;
                 }
             });
+        } else {
+            this.sendPageViewEvent();
         }
     }
     changePage(url) {
         // change the url with history API
         window.history.pushState({}, '', url);
-        // send page wiew event
-        ga('set', 'page', window.location.pathname + window.location.search);
-        ga('send', 'pageview');
+        // send page view event
+        this.sendPageViewEvent();
+    }
+    sendPageViewEvent() {
+        gtag('event', 'page_view', {
+            'page_location': window.location.href,
+            'user_agent': navigator.userAgent
+        });
     }
 }
 var app = new Application();
