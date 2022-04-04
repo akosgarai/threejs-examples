@@ -92,21 +92,11 @@ class Application {
                         break;
                 }
             });
-        } else {
-            this.sendPageViewEvent();
         }
     }
     changePage(url) {
         // change the url with history API
         window.history.pushState({}, '', url);
-        // send page view event
-        this.sendPageViewEvent();
-    }
-    sendPageViewEvent() {
-        gtag('event', 'page_view', {
-            'page_location': window.location.href,
-            'user_agent': navigator.userAgent
-        });
     }
 }
 var app = new Application();
