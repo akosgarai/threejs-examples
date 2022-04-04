@@ -15,6 +15,7 @@ import {CameraZoomScreen} from './screen/CameraZoom.js';
 import {OrtographicCameraScreen} from './screen/OrtographicCamera.js';
 import {SkyBoxScreen} from './screen/SkyBox.js';
 import {KeyboardControlScreen} from './screen/KeyboardControl.js';
+import {CSS3DRendererExampleScreen} from './screen/CSS3DRendererExample.js';
 
 class Application {
     constructor() {
@@ -35,6 +36,7 @@ class Application {
         this.apps.push(new OrtographicCameraScreen('Ortographic camera', this.screen));
         this.apps.push(new SkyBoxScreen('SkyBox example', this.screen));
         this.apps.push(new KeyboardControlScreen('Keyboard controls example', this.screen));
+        this.apps.push(new CSS3DRendererExampleScreen('CSS3D Renderer example', this.screen));
         this.controls = new function() {
             this.selectedApp = '';
         };
