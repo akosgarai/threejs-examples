@@ -50,7 +50,7 @@ class CSS3DRendererExampleScreen extends BasicScreen {
         iframe.style.width = '480px';
         iframe.style.height = '360px';
         iframe.style.border = '0px';
-        iframe.src = [ 'http://www.youtube.com/embed/', id, '?rel=0&autoplay=1&mute=1&enablejsapi=1' ].join( '' );
+        iframe.src = [ window.location.protocol ,'//www.youtube.com/embed/', id, '?rel=0&autoplay=1&mute=1&enablejsapi=1' ].join( '' );
         iframe.setAttribute('id', id + '-' + document.querySelectorAll('iframe').length);
         div.appendChild( iframe );
 
