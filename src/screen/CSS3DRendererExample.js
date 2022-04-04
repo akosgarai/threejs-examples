@@ -12,6 +12,8 @@ class CSS3DRendererExampleScreen extends BasicScreen {
         super(name, screen, control);
     }
     run(gui) {
+        window.onYouTubeIframeAPIReady = this.onYouTubeIframeAPIReady.bind(this);
+
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         this.scene = new Scene();
         // create a camera, which defines where we're looking at.
@@ -48,7 +50,8 @@ class CSS3DRendererExampleScreen extends BasicScreen {
         iframe.style.width = '480px';
         iframe.style.height = '360px';
         iframe.style.border = '0px';
-        iframe.src = [ 'https://www.youtube.com/embed/', id, '?rel=0' ].join( '' );
+        iframe.src = [ 'http://www.youtube.com/embed/', id, '?rel=0&autoplay=1&mute=1&enablejsapi=1' ].join( '' );
+        iframe.setAttribute('id', id + '-' + document.querySelectorAll('iframe').length);
         div.appendChild( iframe );
 
         const object = new CSS3DObject( div );
@@ -56,6 +59,22 @@ class CSS3DRendererExampleScreen extends BasicScreen {
         object.rotation.y = ry;
 
         return object;
+    }
+    onYouTubeIframeAPIReady() {
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            const player = new YT.Player(iframe, {
+                events: {
+                    'onReady': this.onPlayerReady,
+                    'onStateChange': this.onPlayerStateChange
+                }
+            });
+        });
+    }
+    onPlayerReady(event) {
+        event.target.setVolume(100);
+    }
+    onPlayerStateChange(event) {
     }
 }
 export { CSS3DRendererExampleScreen };
