@@ -7,9 +7,10 @@ import {BasicScreen} from './BasicScreen.js';
 class CSS3DRendererExampleScreen extends BasicScreen {
     constructor(name, screen) {
         const control = new function() {
-            this.rotationY = 0;
+            this.rotationY = 0.02;
         };
         super(name, screen, control);
+        this.paused = false;
     }
     run(gui) {
         window.onYouTubeIframeAPIReady = this.onYouTubeIframeAPIReady.bind(this);
@@ -34,10 +35,15 @@ class CSS3DRendererExampleScreen extends BasicScreen {
 
         gui.add(this.controls, 'rotationY', -0.1, 0.1);
 
+        document.addEventListener('keydown', this.pauseRotation.bind(this), false);
+        document.addEventListener('keyup', this.continueRotation.bind(this), false);
+
         super.run(gui);
     }
     render() {
-        this.scene.getObjectByName('videos').rotation.y += this.controls.rotationY;
+        if (!this.paused) {
+            this.scene.getObjectByName('videos').rotation.y += this.controls.rotationY;
+        }
         super.render();
     }
     addElement( id, x, y, z, ry ) {
@@ -75,6 +81,22 @@ class CSS3DRendererExampleScreen extends BasicScreen {
         event.target.setVolume(100);
     }
     onPlayerStateChange(event) {
+    }
+    pauseRotation(event) {
+        const code = event.code;
+        switch (code) {
+            case 'KeyB':
+                this.paused = true;
+                break;
+        }
+    }
+    continueRotation(event) {
+        const code = event.code;
+        switch (code) {
+            case 'KeyB':
+                this.paused = false;
+                break;
+        }
     }
 }
 export { CSS3DRendererExampleScreen };
