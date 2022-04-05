@@ -8,6 +8,7 @@ class CSS3DRendererExampleScreen extends BasicScreen {
     constructor(name, screen) {
         const control = new function() {
             this.rotationY = 0.02;
+            this.paused = 0;
         };
         super(name, screen, control);
         this.paused = false;
@@ -34,9 +35,9 @@ class CSS3DRendererExampleScreen extends BasicScreen {
         this.scene.add( group );
 
         gui.add(this.controls, 'rotationY', -0.1, 0.1);
-
-        document.addEventListener('keydown', this.pauseRotation.bind(this), false);
-        document.addEventListener('keyup', this.continueRotation.bind(this), false);
+        gui.add(this.controls, 'paused', 0, 1, 1).onChange((v) => {
+            this.paused = v;
+        });
 
         super.run(gui);
     }
@@ -81,22 +82,6 @@ class CSS3DRendererExampleScreen extends BasicScreen {
         event.target.setVolume(100);
     }
     onPlayerStateChange(event) {
-    }
-    pauseRotation(event) {
-        const code = event.code;
-        switch (code) {
-            case 'KeyB':
-                this.paused = true;
-                break;
-        }
-    }
-    continueRotation(event) {
-        const code = event.code;
-        switch (code) {
-            case 'KeyB':
-                this.paused = false;
-                break;
-        }
     }
 }
 export { CSS3DRendererExampleScreen };
