@@ -10,4 +10,4 @@ For experimental purposes, the google analytics tool has been added to the appli
 
 One of the demo application demonstrates the usage of the cssRenderer and webgl renderer in the same application. The youtube videos are handled with the css renderer, the skybox belongs to the webgl. You can interact (eg unmute) with the visible youtube videos after you set the pause to 1 or the rotation speed to 0.
 
-![Sample gif from outer space](./examples/07-textured-spheres/sample/sample.gif)
+![Sample gif from outer space](./assets/docs/trollolo-cube.gif)
