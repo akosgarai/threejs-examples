@@ -8,8 +8,9 @@ import {
     TextureLoader,
     WebGLRenderer,
 } from 'three';
-import {BasicScreen} from './BasicScreen.js';
-import {SkyBox} from '../meshes/SkyBox.js';
+import { BasicScreen } from './BasicScreen.js';
+import { SkyBox } from '../meshes/SkyBox.js';
+import { SpaceTruck } from '../meshes/groups/SpaceTruck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
 class SpaceshipSkyboxScreen extends BasicScreen {
@@ -17,6 +18,9 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         const control = new function() {
             // rotation of the spaceship around the z axis.
             this.spaceshipRotation = 0;
+            // spaceship velocity.
+            this.spaceshipVelocity = 0;
+            this.velocityDirection = 1;
         };
         super(name, screen, control);
     }
@@ -39,6 +43,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         this.initSpaceShip();
 
         gui.add(this.controls, 'spaceshipRotation');
+        gui.add(this.controls, 'spaceshipVelocity');
         window.addEventListener('keydown', this.onKeyPress.bind(this), false);
 
         super.run(gui);
@@ -48,14 +53,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         super.render();
     }
     initSpaceShip() {
-        // The spaceship is a squere with a texture.
-        // The texture size is 128*256.
-        // The spaceship is 50*100.
-        const square = new PlaneGeometry(50, 100);
-        const texture = new TextureLoader().load('assets/texture/SpaceTruckTop.png');
-        const material = new MeshBasicMaterial({ map: texture });
-        const spaceship = new Mesh(square, material);
-        spaceship.name = 'spaceship';
+        const spaceship = new SpaceTruck('spaceship').getGroup();
         this.scene.add(spaceship);
         // The camera is 100 units above the spaceship.
         this.camera.position.set(0, 0, 1000);
