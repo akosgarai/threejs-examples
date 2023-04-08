@@ -45,6 +45,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         gui.add(this.controls, 'spaceshipRotation');
         gui.add(this.controls, 'spaceshipVelocity');
         window.addEventListener('keydown', this.onKeyPress.bind(this), false);
+        window.addEventListener('keyup', this.onKeyReleased.bind(this), false);
 
         super.run(gui);
     }
@@ -72,6 +73,10 @@ class SpaceshipSkyboxScreen extends BasicScreen {
             case 'KeyD':
                 ship.rotation.z -= 0.01;
                 break;
+            case 'ArrowUp':
+            case 'KeyW':
+                ship.getObjectByName('burst').visible = true;
+                break;
         }
         // The rotation should be between -180 and 180 degrees.
         if (ship.rotation.z > Math.PI) {
@@ -79,6 +84,15 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         }
         if (ship.rotation.z < -Math.PI) {
             ship.rotation.z += 2 * Math.PI;
+        }
+    }
+    onKeyReleased(event) {
+        const code = event.code;
+        switch (code) {
+            case 'ArrowUp':
+            case 'KeyW':
+                this.scene.getObjectByName('burst').visible = false;
+                break;
         }
     }
     // update the gui. Set the rotation of the spaceship.

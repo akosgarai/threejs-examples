@@ -14,10 +14,14 @@ class SpaceTruck {
         // The spaceship is 50*100.
         const spaceTruckBase = new RectangleWithTexture(50, 100, 'truck', 'assets/texture/SpaceTruckTop.png', true).getMesh();
         const spaceTruckEngines = new RectangleWithTexture(50, 100, 'engine', 'assets/texture/SpaceTruckRockets.png', true).getMesh();
+        const engineFire = new RectangleWithTexture(50, 100, 'burst', 'assets/texture/SpaceTruckRocketFlames.png', true).getMesh();
         // the rockets has to be moved to the top of the truck.
         spaceTruckEngines.position.z = 5;
+        engineFire.position.z = 10;
+        engineFire.visible = false;
         group.add(spaceTruckBase);
         group.add(spaceTruckEngines);
+        group.add(engineFire);
 
         group.name = this.groupName;
 
