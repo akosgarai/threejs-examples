@@ -157,12 +157,18 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         // the velocity is 1 for each burst.
         // The new velocity and velocity direction is calculated by the following formula:
         // If the velocity is 0, then the new velocity is 1 and the new velocity direction is the opposite of the rotation direction.
-        const rotationComponent = ship.rotation.z * 180 / Math.PI;
+        const rotationComponent = ship.rotation.z * -180 / Math.PI;
         if (this.controls.spaceshipVelocity === 0) {
             this.controls.spaceshipVelocity = 1;
             this.controls.velocityDirection = rotationComponent;
             return;
         }
+        const currentStep = this.spaceshipVelocityStep();
+        const burstStep = (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), rotationComponent * Math.PI / 180);
+        const newStep = currentStep.add(burstStep);
+        // calculate the new velocity and velocity direction.
+        this.controls.spaceshipVelocity = newStep.length();
+        this.controls.velocityDirection = Math.atan2(newStep.x, newStep.y) * 180 / Math.PI;
     }
     setState(state) {
         if (state === 'idle' || this.state === 'idle') {
@@ -174,10 +180,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
             return;
         }
         const ship = this.scene.getObjectByName('spaceship');
-        // calculate the velocity vector.
-        const velocity = new Vector3(0, 1, 0);
-        velocity.applyAxisAngle(new Vector3(0, 0, 1), this.controls.velocityDirection * this.controls.spaceshipVelocity * Math.PI / 180);
-        ship.position.add(velocity);
+        ship.position.add(this.spaceshipVelocityStep());
         // update the camera position.
         this.syncCamera();
         this.syncSkybox();
@@ -193,8 +196,14 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         skybox.position.set(ship.position.x, ship.position.y, 0);
         // simulate the spaceship moving through the skybox.
         // rotate the skybox in the opposite direction of the spaceship movement.
-        const rotationAxis = (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), this.controls.velocityDirection * this.controls.spaceshipVelocity * Math.PI / 180 + Math.PI/2);
-        skybox.rotateOnAxis(rotationAxis, 0.001);
+        const rotationAxis = (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), -this.controls.spaceshipVelocity * Math.PI / 180 + Math.PI/2).normalize();
+        skybox.rotateOnAxis(rotationAxis, 0.001 * this.controls.spaceshipVelocity);
+    }
+    spaceshipVelocityStep() {
+        return this.spaceshipVelocityDirectionUnitVector().multiplyScalar(this.controls.spaceshipVelocity);
+    }
+    spaceshipVelocityDirectionUnitVector() {
+        return (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), -this.controls.velocityDirection * Math.PI / 180).normalize();
     }
 }
 
