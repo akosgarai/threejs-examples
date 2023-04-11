@@ -6,6 +6,7 @@ import {
     PlaneGeometry,
     Scene,
     TextureLoader,
+    Vector3,
     WebGLRenderer,
 } from 'three';
 import { BasicScreen } from './BasicScreen.js';
@@ -13,6 +14,15 @@ import { SkyBox } from '../meshes/SkyBox.js';
 import { SpaceTruck } from '../meshes/groups/SpaceTruck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
+/*
+ * This class represents a screen with a spaceship and a skybox.
+ * The spaceship is controlled by the arrow keys or with the 'w', 'a', 'd' keys.
+ * States of the spaceship:
+ * 1. The spaceship is rotating left.
+ * 2. The spaceship is rotating right.
+ * 3. The spaceship is bursting the engine.
+ * 4. The spaceship is idle. - the default state. In this state the spaceship is not rotating and the engine is not bursting, so the spaceship is moving with a constant velocity to the velocity direction.
+ * */
 class SpaceshipSkyboxScreen extends BasicScreen {
     constructor(name, screen) {
         const control = new function() {
@@ -44,21 +54,24 @@ class SpaceshipSkyboxScreen extends BasicScreen {
 
         gui.add(this.controls, 'spaceshipRotation');
         gui.add(this.controls, 'spaceshipVelocity');
+        gui.add(this.controls, 'velocityDirection');
         window.addEventListener('keydown', this.onKeyPress.bind(this), false);
         window.addEventListener('keyup', this.onKeyReleased.bind(this), false);
 
         super.run(gui);
     }
     render() {
+        this.update();
         this.updateGui();
         super.render();
     }
     initSpaceShip() {
         const spaceship = new SpaceTruck('spaceship').getGroup();
         this.scene.add(spaceship);
-        // The camera is 100 units above the spaceship.
+        // The camera is 1000 units above the spaceship.
         this.camera.position.set(0, 0, 1000);
         this.camera.lookAt(spaceship.position);
+        this.state = 'idle';
     }
     // Key press event handler.
     onKeyPress(event) {
@@ -67,23 +80,17 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         switch (code) {
             case 'ArrowLeft':
             case 'KeyA':
-                ship.rotation.z += 0.01;
+                this.setState('rotatingLeft');
                 break;
             case 'ArrowRight':
             case 'KeyD':
-                ship.rotation.z -= 0.01;
+                this.setState('rotatingRight');
                 break;
             case 'ArrowUp':
             case 'KeyW':
+                this.setState('burst');
                 ship.getObjectByName('burst').visible = true;
                 break;
-        }
-        // The rotation should be between -180 and 180 degrees.
-        if (ship.rotation.z > Math.PI) {
-            ship.rotation.z -= 2 * Math.PI;
-        }
-        if (ship.rotation.z < -Math.PI) {
-            ship.rotation.z += 2 * Math.PI;
         }
     }
     onKeyReleased(event) {
@@ -92,6 +99,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
             case 'ArrowUp':
             case 'KeyW':
                 this.scene.getObjectByName('burst').visible = false;
+                this.setState('idle');
                 break;
         }
     }
@@ -106,8 +114,69 @@ class SpaceshipSkyboxScreen extends BasicScreen {
                     const rotation = ship.rotation.z * -180 / Math.PI;
                     item.setValue(rotation);
                     break;
+                case 'spaceshipVelocity':
+                    item.setValue(this.controls.spaceshipVelocity);
+                    break;
+                case 'velocityDirection':
+                    item.setValue(this.controls.velocityDirection);
+                    break;
             }
         })
+    }
+    update() {
+        switch (this.state) {
+            case 'rotatingLeft':
+                this.rotateSpaceship(0.01);
+                break;
+            case 'rotatingRight':
+                this.rotateSpaceship(-0.01);
+                break;
+            case 'burst':
+                this.burstSpaceship();
+                break;
+        }
+        this.moveSpaceship();
+    }
+    rotateSpaceship(amount) {
+        const ship = this.scene.getObjectByName('spaceship');
+        ship.rotation.z += amount;
+        // The rotation should be between -180 and 180 degrees.
+        if (ship.rotation.z > Math.PI) {
+            ship.rotation.z -= 2 * Math.PI;
+        }
+        if (ship.rotation.z < -Math.PI) {
+            ship.rotation.z += 2 * Math.PI;
+        }
+        this.setState('idle');
+    }
+    burstSpaceship() {
+        const ship = this.scene.getObjectByName('spaceship');
+        ship.getObjectByName('burst').visible = true;
+        // update the velocity and the velocity direction.
+        // the velocity direction is the opposite of the rotation direction.
+        // the velocity is 1 for each burst.
+        // The new velocity and velocity direction is calculated by the following formula:
+        // If the velocity is 0, then the new velocity is 1 and the new velocity direction is the opposite of the rotation direction.
+        const rotationComponent = ship.rotation.z * 180 / Math.PI;
+        if (this.controls.spaceshipVelocity === 0) {
+            this.controls.spaceshipVelocity = 1;
+            this.controls.velocityDirection = rotationComponent;
+            return;
+        }
+    }
+    setState(state) {
+        if (state === 'idle' || this.state === 'idle') {
+            this.state = state;
+        }
+    }
+    moveSpaceship() {
+        const ship = this.scene.getObjectByName('spaceship');
+        // calculate the velocity vector.
+        const velocity = new Vector3(0, this.controls.spaceshipVelocity, 0);
+        velocity.applyAxisAngle(new Vector3(0, 0, 1), this.controls.velocityDirection * Math.PI / 180);
+        ship.position.add(velocity);
+        // update the camera position.
+        this.camera.position.set(ship.position.x, ship.position.y, 1000);
     }
 }
 
