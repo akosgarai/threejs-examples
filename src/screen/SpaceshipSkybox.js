@@ -45,7 +45,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         this.renderer.setClearColor(0x000000, 1.0);
         this.screenNode.appendChild(this.renderer.domElement);
 
-        const skyBox = new SkyBox(this.skyBoxName, 'skybox', 10000).getSkyBox();
+        const skyBox = new SkyBox('skybox', 'skybox', 10000).getSkyBox();
         this.scene.add(skyBox);
 
         const ambientLight = new AmbientLight();
@@ -170,13 +170,31 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         }
     }
     moveSpaceship() {
+        if (this.controls.spaceshipVelocity === 0) {
+            return;
+        }
         const ship = this.scene.getObjectByName('spaceship');
         // calculate the velocity vector.
-        const velocity = new Vector3(0, this.controls.spaceshipVelocity, 0);
-        velocity.applyAxisAngle(new Vector3(0, 0, 1), this.controls.velocityDirection * Math.PI / 180);
+        const velocity = new Vector3(0, 1, 0);
+        velocity.applyAxisAngle(new Vector3(0, 0, 1), this.controls.velocityDirection * this.controls.spaceshipVelocity * Math.PI / 180);
         ship.position.add(velocity);
         // update the camera position.
+        this.syncCamera();
+        this.syncSkybox();
+    }
+    syncCamera() {
+        const ship = this.scene.getObjectByName('spaceship');
         this.camera.position.set(ship.position.x, ship.position.y, 1000);
+        this.camera.lookAt(ship.position);
+    }
+    syncSkybox() {
+        const ship = this.scene.getObjectByName('spaceship');
+        const skybox = this.scene.getObjectByName('skybox');
+        skybox.position.set(ship.position.x, ship.position.y, 0);
+        // simulate the spaceship moving through the skybox.
+        // rotate the skybox in the opposite direction of the spaceship movement.
+        const rotationAxis = (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), this.controls.velocityDirection * this.controls.spaceshipVelocity * Math.PI / 180 + Math.PI/2);
+        skybox.rotateOnAxis(rotationAxis, 0.001);
     }
 }
 
