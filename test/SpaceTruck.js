@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Group, Vector3 } from 'three';
+import { Euler, Group, Vector3 } from 'three';
 
 import { SpaceTruck, Navigation } from '../src/meshes/groups/SpaceTruck.js';
 
@@ -295,6 +295,380 @@ describe('Navigation', () => {
             });
             it('should set the velocityDirection', () => {
                 assert.equal(navigation.velocityDirection, 0);
+            });
+        });
+    });
+    describe('Update', () => {
+        // Burst state then update.
+        const navigation = createNavigation();
+        const burstStep = navigation.burstDuration / 2;
+        const initialBurstTime = 10;
+        describe('Burst flow with 0 rotation', () => {
+            navigation.setState('burst');
+            navigation.direction = 0;
+            navigation.group.position.x = 0;
+            navigation.group.position.y = 0;
+            navigation.group.position.z = 0;
+            navigation.velocity = 0;
+            navigation.group.rotation.x = 0;
+            navigation.group.rotation.y = 0;
+            navigation.group.rotation.z = 0;
+            describe('Start Burst', () => {
+                navigation.update(initialBurstTime);
+                // check the current state
+                const firstUpdateNavigation = Object.assign({}, navigation);
+                const firstUpdateBurst = firstUpdateNavigation.group.getObjectByName('burst').clone();
+                const firstUpdateGroup = firstUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(firstUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(firstUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(firstUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(firstUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(firstUpdateNavigation.velocityDirection, 0);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(firstUpdateGroup.position.x, 0);
+                    assert.equal(firstUpdateGroup.position.y, 1);
+                    assert.equal(firstUpdateGroup.position.z, 0);
+                });
+            });
+            describe('Halftime', () => {
+                navigation.update(initialBurstTime + burstStep);
+                // check the current state
+                const secondUpdateNavigation = Object.assign({}, navigation);
+                const secondUpdateBurst = secondUpdateNavigation.group.getObjectByName('burst').clone();
+                const secondUpdateGroup = secondUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(secondUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(secondUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(secondUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(secondUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(secondUpdateNavigation.velocityDirection, 0);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(secondUpdateGroup.position.x, 0);
+                    assert.equal(secondUpdateGroup.position.y, 2);
+                    assert.equal(secondUpdateGroup.position.z, 0);
+                });
+            });
+            describe('Stop Burst', () => {
+                navigation.update(initialBurstTime + 2 * burstStep);
+                const stopNavigation = Object.assign({}, navigation);
+                const stopBurst = stopNavigation.group.getObjectByName('burst').clone();
+                const stopGroup = stopNavigation.group.clone();
+                // check the current state
+                it('should set the burstTimer to 0', () => {
+                    assert.equal(stopNavigation.burstTimer, 0);
+                });
+                it('should set the idle state', () => {
+                    assert.equal(stopNavigation.state, 'idle');
+                });
+                it('should set the Burst hidden', () => {
+                    assert.isFalse(stopBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(stopNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(stopNavigation.velocityDirection, 0);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(stopGroup.position.x, 0);
+                    assert.equal(stopGroup.position.y, 3);
+                    assert.equal(stopGroup.position.z, 0);
+                });
+            });
+        });
+        describe('Burst flow with 90 deg. rotation', () => {
+            navigation.group.position.x = 0;
+            navigation.group.position.y = 0;
+            navigation.group.position.z = 0;
+            navigation.velocity = 0;
+            navigation.group.rotation.x = 0;
+            navigation.group.rotation.y = 0;
+            navigation.group.rotation.z = Math.PI / 2;
+            navigation.burstTimer = 0;
+            navigation.setState('burst');
+            describe('Start Burst', () => {
+                navigation.update(initialBurstTime);
+                // check the current state
+                const firstUpdateNavigation = Object.assign({}, navigation);
+                const firstUpdateBurst = firstUpdateNavigation.group.getObjectByName('burst').clone();
+                const firstUpdateGroup = firstUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(firstUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(firstUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(firstUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(firstUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(firstUpdateNavigation.velocityDirection, Math.PI / 2);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(firstUpdateGroup.position.x.toFixed(5), -1.0.toFixed(5));
+                    assert.equal(firstUpdateGroup.position.y.toFixed(5), 0.0.toFixed(5));
+                    assert.equal(firstUpdateGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+            describe('Halftime', () => {
+                navigation.update(initialBurstTime + burstStep);
+                // check the current state
+                const secondUpdateNavigation = Object.assign({}, navigation);
+                const secondUpdateBurst = secondUpdateNavigation.group.getObjectByName('burst').clone();
+                const secondUpdateGroup = secondUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(secondUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(secondUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(secondUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(secondUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(secondUpdateNavigation.velocityDirection, Math.PI / 2);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(secondUpdateGroup.position.x.toFixed(5), -2.0.toFixed(5));
+                    assert.equal(secondUpdateGroup.position.y.toFixed(5), 0.0.toFixed(5));
+                    assert.equal(secondUpdateGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+            describe('Stop Burst', () => {
+                navigation.update(initialBurstTime + 2 * burstStep);
+                const stopNavigation = Object.assign({}, navigation);
+                const stopBurst = stopNavigation.group.getObjectByName('burst').clone();
+                const stopGroup = stopNavigation.group.clone();
+                // check the current state
+                it('should set the burstTimer to 0', () => {
+                    assert.equal(stopNavigation.burstTimer, 0);
+                });
+                it('should set the idle state', () => {
+                    assert.equal(stopNavigation.state, 'idle');
+                });
+                it('should set the Burst hidden', () => {
+                    assert.isFalse(stopBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(stopNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(stopNavigation.velocityDirection, Math.PI / 2);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(stopGroup.position.x.toFixed(5), -3.0.toFixed(5));
+                    assert.equal(stopGroup.position.y.toFixed(5), 0.0.toFixed(5));
+                    assert.equal(stopGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+        });
+        describe('Burst flow with -90 deg. rotation', () => {
+            navigation.group.position.x = 0;
+            navigation.group.position.y = 0;
+            navigation.group.position.z = 0;
+            navigation.velocity = 0;
+            navigation.group.rotation.x = 0;
+            navigation.group.rotation.y = 0;
+            navigation.group.rotation.z = -Math.PI / 2;
+            navigation.burstTimer = 0;
+            navigation.setState('burst');
+            describe('Start Burst', () => {
+                navigation.update(initialBurstTime);
+                // check the current state
+                const firstUpdateNavigation = Object.assign({}, navigation);
+                const firstUpdateBurst = firstUpdateNavigation.group.getObjectByName('burst').clone();
+                const firstUpdateGroup = firstUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(firstUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(firstUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(firstUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(firstUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(firstUpdateNavigation.velocityDirection, -Math.PI / 2);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(firstUpdateGroup.position.x.toFixed(5), 1.0.toFixed(5));
+                    assert.equal(firstUpdateGroup.position.y.toFixed(5), 0.0.toFixed(5));
+                    assert.equal(firstUpdateGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+            describe('Halftime', () => {
+                navigation.update(initialBurstTime + burstStep);
+                // check the current state
+                const secondUpdateNavigation = Object.assign({}, navigation);
+                const secondUpdateBurst = secondUpdateNavigation.group.getObjectByName('burst').clone();
+                const secondUpdateGroup = secondUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(secondUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(secondUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(secondUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(secondUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(secondUpdateNavigation.velocityDirection, -Math.PI / 2);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(secondUpdateGroup.position.x.toFixed(5), 2.0.toFixed(5));
+                    assert.equal(secondUpdateGroup.position.y.toFixed(5), 0.0.toFixed(5));
+                    assert.equal(secondUpdateGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+            describe('Stop Burst', () => {
+                navigation.update(initialBurstTime + 2 * burstStep);
+                const stopNavigation = Object.assign({}, navigation);
+                const stopBurst = stopNavigation.group.getObjectByName('burst').clone();
+                const stopGroup = stopNavigation.group.clone();
+                // check the current state
+                it('should set the burstTimer to 0', () => {
+                    assert.equal(stopNavigation.burstTimer, 0);
+                });
+                it('should set the idle state', () => {
+                    assert.equal(stopNavigation.state, 'idle');
+                });
+                it('should set the Burst hidden', () => {
+                    assert.isFalse(stopBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(stopNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(stopNavigation.velocityDirection, -Math.PI / 2);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(stopGroup.position.x.toFixed(5), 3.0.toFixed(5));
+                    assert.equal(stopGroup.position.y.toFixed(5), 0.0.toFixed(5));
+                    assert.equal(stopGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+        });
+        describe('Burst flow with -180 / 180 deg. rotation', () => {
+            navigation.group.position.x = 0;
+            navigation.group.position.y = 0;
+            navigation.group.position.z = 0;
+            navigation.velocity = 0;
+            navigation.group.rotation.x = 0;
+            navigation.group.rotation.y = 0;
+            navigation.group.rotation.z = Math.PI;
+            navigation.burstTimer = 0;
+            navigation.setState('burst');
+            describe('Start Burst', () => {
+                navigation.update(initialBurstTime);
+                // check the current state
+                const firstUpdateNavigation = Object.assign({}, navigation);
+                const firstUpdateBurst = firstUpdateNavigation.group.getObjectByName('burst').clone();
+                const firstUpdateGroup = firstUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(firstUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(firstUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(firstUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(firstUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(firstUpdateNavigation.velocityDirection, Math.PI);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(firstUpdateGroup.position.x.toFixed(5), -0.0.toFixed(5));
+                    assert.equal(firstUpdateGroup.position.y.toFixed(5), -1.0.toFixed(5));
+                    assert.equal(firstUpdateGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+            describe('Halftime', () => {
+                navigation.update(initialBurstTime + burstStep);
+                // check the current state
+                const secondUpdateNavigation = Object.assign({}, navigation);
+                const secondUpdateBurst = secondUpdateNavigation.group.getObjectByName('burst').clone();
+                const secondUpdateGroup = secondUpdateNavigation.group.clone();
+                it('should set the burstTimer to the initial value', () => {
+                    assert.equal(secondUpdateNavigation.burstTimer, initialBurstTime);
+                });
+                it('should set the burst state', () => {
+                    assert.equal(secondUpdateNavigation.state, 'burst');
+                });
+                it('should set the Burst visible', () => {
+                    assert.isTrue(secondUpdateBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(secondUpdateNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(secondUpdateNavigation.velocityDirection, Math.PI);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(secondUpdateGroup.position.x.toFixed(5), -0.0.toFixed(5));
+                    assert.equal(secondUpdateGroup.position.y.toFixed(5), -2.0.toFixed(5));
+                    assert.equal(secondUpdateGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
+            });
+            describe('Stop Burst', () => {
+                navigation.update(initialBurstTime + 2 * burstStep);
+                const stopNavigation = Object.assign({}, navigation);
+                const stopBurst = stopNavigation.group.getObjectByName('burst').clone();
+                const stopGroup = stopNavigation.group.clone();
+                // check the current state
+                it('should set the burstTimer to 0', () => {
+                    assert.equal(stopNavigation.burstTimer, 0);
+                });
+                it('should set the idle state', () => {
+                    assert.equal(stopNavigation.state, 'idle');
+                });
+                it('should set the Burst hidden', () => {
+                    assert.isFalse(stopBurst.visible);
+                });
+                it('should set the velocity to 1', () => {
+                    assert.equal(stopNavigation.velocity, 1);
+                });
+                it('should set the velocityDirection', () => {
+                    assert.equal(stopNavigation.velocityDirection, Math.PI);
+                });
+                it('should set the position of the group', () => {
+                    assert.equal(stopGroup.position.x.toFixed(5), -0.0.toFixed(5));
+                    assert.equal(stopGroup.position.y.toFixed(5), -3.0.toFixed(5));
+                    assert.equal(stopGroup.position.z.toFixed(5), 0.0.toFixed(5));
+                });
             });
         });
     });
