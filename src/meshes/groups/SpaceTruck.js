@@ -152,8 +152,8 @@ class Navigation {
                 break;
             default:
                 break;
-                this.move();
         }
+        this.move();
     }
 }
 
