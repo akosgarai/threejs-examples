@@ -1,4 +1,4 @@
-import { Group, Vector3 } from 'three';
+import { Group, Vector3, MathUtils } from 'three';
 import { RectangleWithTexture } from '../Rectangles.js';
 /*
  * This class represents a basic Mesh group that looks like a space truck.
@@ -34,7 +34,7 @@ class Navigation {
         this.group = group;
         this.state = 'idle';
         this.engineBurstAmount = 1;
-        this.engineRotationAmount = 0.01;
+        this.engineRotationAmount = 1;
         this.burstDuration = 1000;
         this.burstTimer = 0;
         this.velocity = 0;
@@ -74,14 +74,11 @@ class Navigation {
                 return;
             }
             const currentStep = this.spaceshipVelocityStep();
-            console.log('current step', rotationComponent);
             const burstStep = (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), rotationComponent);
-            console.log('burst step', burstStep);
-            const newStep = currentStep.add(burstStep);
-            console.log('new step', newStep);
+            const newStep = currentStep.clone().add(burstStep.clone());
             // calculate the new velocity and velocity direction.
+            this.velocityDirection = newStep.angleTo(new Vector3(0, 1, 0));
             this.velocity = newStep.length();
-            this.velocityDirection = -newStep.angleTo(new Vector3(0, 1, 0));
         }
         // The rotation should be between -180 and 180 degrees.
         if (this.velocityDirection > Math.PI) {
@@ -92,7 +89,6 @@ class Navigation {
         }
 
         if (now - this.burstTimer < this.burstDuration) {
-            console.log(now, this.burstTimer, this.burstDuration)
             this.setState('burst');
             return;
         }
@@ -111,7 +107,7 @@ class Navigation {
         if (this.state !== 'rotatingLeft' && this.state !== 'rotatingRight') {
             return;
         }
-        this.group.rotation.z += angle;
+        this.group.rotation.z += MathUtils.degToRad(angle);
         // The rotation should be between -180 and 180 degrees.
         if (this.group.rotation.z > Math.PI) {
             this.group.rotation.z -= 2 * Math.PI;
