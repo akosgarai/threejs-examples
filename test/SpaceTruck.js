@@ -47,6 +47,49 @@ function checkNavigation(
         assert.closeTo(currentGroup.position.z, expectedPosition.z, MAX_DELTA);
     });
 }
+function testCaseVelocityDirectionUnitVector(directionRadians, expectedUnitVector) {
+    const vectorDisplay = '(' + expectedUnitVector.x + ', ' + expectedUnitVector.y + ', ' + expectedUnitVector.z + ')';
+    const angleDisplay = directionRadians + ' radians / ' + (directionRadians * 180 / Math.PI) + ' degrees';
+    it('should be ' + vectorDisplay + ' if the velocityDirection is ' + angleDisplay, () => {
+        const navigation = createNavigation();
+        navigation.velocityDirection = directionRadians;
+        const unitVector = navigation.velocityDirectionUnitVector();
+        assert.closeTo(unitVector.x, expectedUnitVector.x, MAX_DELTA);
+        assert.closeTo(unitVector.y, expectedUnitVector.y, MAX_DELTA);
+        assert.closeTo(unitVector.z, expectedUnitVector.z, MAX_DELTA);
+    });
+}
+function testCaseBurstFlowWithInitialRotation(directionRad, expectedPositions) {
+    const angleDisplay = directionRad + ' radians / ' + (directionRad * 180 / Math.PI) + ' degrees';
+    describe('Burst flow with ' + angleDisplay + ' initial rotation', () => {
+        const navigation = createNavigation();
+        navigation.group.rotation.z = directionRad;
+        const initialBurstTime = 1;
+        const burstStep = navigation.burstDuration / 2;
+        navigation.setState('burst');
+        describe('Start Burst', () => {
+            navigation.update(initialBurstTime);
+            // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+            checkNavigation(navigation, initialBurstTime, 'burst', 1, directionRad, expectedPositions[0], true);
+        });
+        describe('Halftime', () => {
+            navigation.update(initialBurstTime + burstStep);
+            // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+            checkNavigation(navigation, initialBurstTime, 'burst', 1, directionRad, expectedPositions[1], true);
+        });
+        describe('Stop Burst', () => {
+            navigation.update(initialBurstTime + 2 * burstStep);
+            // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+            checkNavigation(navigation, 0, 'idle', 1, directionRad, expectedPositions[2], false);
+        });
+        describe('Start Burst again', () => {
+            navigation.setState('burst');
+            navigation.update(initialBurstTime);
+            // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+            checkNavigation(navigation, initialBurstTime, 'burst', 2, directionRad, expectedPositions[3], true);
+        });
+    });
+}
 
 describe('Navigation', () => {
     describe('constructor', () => {
@@ -117,7 +160,7 @@ describe('Navigation', () => {
         describe('RotateLeft', () => {
             const navigation = createNavigation();
             const initialRotationComponent = 0;
-            navigation.group.rotation.z = initialRotationComponent;
+            navigation.rotationAngleDegree = initialRotationComponent;
             it('should be incremented in 180 iteration', () => {
                 for (let i = 0; i < 180; i++) {
                     const expected = navigation.engineRotationAmount * (i + 1) * Math.PI / 180;
@@ -125,12 +168,13 @@ describe('Navigation', () => {
                     navigation.rotateLeft();
                     assert.closeTo(navigation.group.rotation.z, expected, MAX_DELTA, 'Iteration ' + i);
                     assert.equal(navigation.state, 'idle');
+                    assert.equal(navigation.rotationAngleDegree, i + 1);
                 }
             });
-            it('should be decreased by 2PI if the rotation is more than PI', () => {
-                navigation.group.rotation.z = Math.PI;
+            it('should be decreased by 360 if the rotation is more than 360', () => {
+                navigation.rotationAngleDegree = 359;
                 navigation.state = 'rotatingLeft';
-                const expected = Math.PI + (navigation.engineRotationAmount * Math.PI / 180) - 2 * Math.PI;
+                const expected = 0;
                 navigation.rotateLeft();
                 assert.closeTo(navigation.group.rotation.z, expected, MAX_DELTA);
             });
@@ -138,22 +182,24 @@ describe('Navigation', () => {
         describe('RotateRight', () => {
             const navigation = createNavigation();
             const initialRotationComponent = 0;
-            navigation.group.rotation.z = initialRotationComponent;
+            navigation.rotationAngleDegree = initialRotationComponent;
             it('should be decremented in 180 iteration', () => {
                 for (let i = 0; i < 180; i++) {
-                    const expected = -navigation.engineRotationAmount * (i + 1) * Math.PI / 180;
+                    const expected = 2 * Math.PI - navigation.engineRotationAmount * (i + 1) * Math.PI / 180;
                     navigation.state = 'rotatingRight';
                     navigation.rotateRight();
                     assert.closeTo(navigation.group.rotation.z, expected, MAX_DELTA, 'Iteration ' + i);
                     assert.equal(navigation.state, 'idle');
+                    assert.equal(navigation.rotationAngleDegree, 360 - (i + 1));
                 }
             });
-            it('should be increased by 2PI if the rotation is less than -PI', () => {
-                navigation.group.rotation.z = -Math.PI;
+            it('should be increased by 360 if the rotation is less than 0', () => {
+                navigation.rotationAngleDegree = 0;
                 navigation.state = 'rotatingRight';
-                const expected = -Math.PI - (navigation.engineRotationAmount * Math.PI / 180) + 2 * Math.PI;
+                const expected = 2*Math.PI - (navigation.engineRotationAmount * Math.PI / 180);
                 navigation.rotateRight();
                 assert.closeTo(navigation.group.rotation.z, expected, MAX_DELTA);
+                assert.equal(navigation.rotationAngleDegree, 359);
             });
         });
         describe('Rotate both direction with the correct steps', () => {
@@ -182,50 +228,15 @@ describe('Navigation', () => {
         });
     });
     describe('velocityDirectionUnitVector', () => {
-        // if the velocityDirection is 0, the unit vector is (0, 1, 0)
-        it('should be (0, 1, 0) if the velocityDirection is 0', () => {
-            const navigation = createNavigation();
-            navigation.velocityDirection = 0;
-            const unitVector = navigation.velocityDirectionUnitVector();
-            assert.equal(unitVector.x, 0);
-            assert.equal(unitVector.y, 1);
-            assert.equal(unitVector.z, 0);
-        });
-        // if the velocityDirection is -PI/2, the unit vector is (1, 0, 0)
-        it('should be (1, 0, 0) if the velocityDirection is -PI/2', () => {
-            const navigation = createNavigation();
-            navigation.velocityDirection = -(Math.PI / 2);
-            const unitVector = navigation.velocityDirectionUnitVector();
-            assert.closeTo(unitVector.x, 1, MAX_DELTA);
-            assert.closeTo(unitVector.y, 0, MAX_DELTA);
-            assert.closeTo(unitVector.z, 0, MAX_DELTA);
-        });
-        // if the velocityDirection is -PI, the unit vector is (0, -1, 0)
-        it('should be (0, -1, 0) if the velocityDirection is -PI', () => {
-            const navigation = createNavigation();
-            navigation.velocityDirection = -Math.PI;
-            const unitVector = navigation.velocityDirectionUnitVector();
-            assert.closeTo(unitVector.x, 0, MAX_DELTA);
-            assert.closeTo(unitVector.y, -1, MAX_DELTA);
-            assert.closeTo(unitVector.z, 0, MAX_DELTA);
-        });
-        // if the velocityDirection is PI, the unit vector is (0, -1, 0)
-        it('should be (0, -1, 0) if the velocityDirection is PI', () => {
-            const navigation = createNavigation();
-            navigation.velocityDirection = -Math.PI;
-            const unitVector = navigation.velocityDirectionUnitVector();
-            assert.closeTo(unitVector.x, 0, MAX_DELTA);
-            assert.closeTo(unitVector.y, -1, MAX_DELTA);
-            assert.closeTo(unitVector.z, 0, MAX_DELTA);
-        });
-        // if the velocityDirection is PI/2, the unit vector is (-1, 0, 0)
-        it('should be (1, 0, 0) if the velocityDirection is PI/2', () => {
-            const navigation = createNavigation();
-            navigation.velocityDirection = Math.PI / 2;
-            const unitVector = navigation.velocityDirectionUnitVector();
-            assert.closeTo(unitVector.x, -1, MAX_DELTA);
-            assert.closeTo(unitVector.y, 0, MAX_DELTA);
-            assert.closeTo(unitVector.z, 0, MAX_DELTA);
+        const testData = [
+            { 'directionRad': 0, 'expected': { 'x': 0, 'y': 1, 'z': 0 } },
+            { 'directionRad': -(Math.PI / 2), 'expected': { 'x': 1, 'y': 0, 'z': 0 } },
+            { 'directionRad': -Math.PI, 'expected': { 'x': 0, 'y': -1, 'z': 0 } },
+            { 'directionRad': Math.PI, 'expected': { 'x': 0, 'y': -1, 'z': 0 } },
+            { 'directionRad': Math.PI / 2, 'expected': { 'x': -1, 'y': 0, 'z': 0 } },
+        ]
+        testData.forEach((data) => {
+            testCaseVelocityDirectionUnitVector(data.directionRad, data.expected);
         });
     });
     describe('SetState', () => {
@@ -286,6 +297,84 @@ describe('Navigation', () => {
             });
         });
     });
+    describe('changeVelocityWithBurstAmount', () => {
+        const testData = [
+            {
+                'angle': 0,
+                'initialVelocity': 1,
+                'expectedVelocity': 2,
+                'expectedVelocityDirection': 0,
+                'expectedVelocityStep': { 'x': 0, 'y': 1, 'z': 0 },
+                'expectedBurstStep': { 'x': 0, 'y': 1, 'z': 0 },
+            },
+            {
+                'angle': 90,
+                'initialVelocity': 1,
+                'expectedVelocity': 2,
+                'expectedVelocityDirection': Math.PI / 2 ,
+                'expectedVelocityStep': { 'x': -1, 'y': 0, 'z': 0 },
+                'expectedBurstStep': { 'x': -1, 'y': 0, 'z': 0 },
+            },
+            {
+                'angle': 180,
+                'initialVelocity': 1,
+                'expectedVelocity': 2,
+                'expectedVelocityDirection': Math.PI ,
+                'expectedVelocityStep': { 'x': 0, 'y': -1, 'z': 0 },
+                'expectedBurstStep': { 'x': 0, 'y': -1, 'z': 0 },
+            },
+            {
+                'angle': -180,
+                'initialVelocity': 1,
+                'expectedVelocity': 2,
+                'expectedVelocityDirection': Math.PI ,
+                'expectedVelocityStep': { 'x': 0, 'y': -1, 'z': 0 },
+                'expectedBurstStep': { 'x': 0, 'y': -1, 'z': 0 },
+            },
+            {
+                'angle': -90,
+                'initialVelocity': 1,
+                'expectedVelocity': 2,
+                'expectedVelocityDirection': 3 * Math.PI / 2 ,
+                'expectedVelocityStep': { 'x': 1, 'y': 0, 'z': 0 },
+                'expectedBurstStep': { 'x': 1, 'y': 0, 'z': 0 },
+            },
+        ]
+        testData.forEach((data) => {
+            describe('Calculation with ' + data.angle + ' angle', () => {
+                const navigation = createNavigation();
+                navigation.setState('rotatingLeft');
+                navigation.rotateWith(data.angle);
+                navigation.velocity = data.initialVelocity;
+                navigation.velocityDirection = navigation.group.rotation.z;
+                it('should calculate velocity direction well', () => {
+                    assert.closeTo(navigation.velocityDirection, data.expectedVelocityDirection, MAX_DELTA);
+                });
+                const currentStep = navigation.spaceshipVelocityStep();
+                it('should calculate velocity step well', () => {
+                    assert.closeTo(currentStep.x, data.expectedVelocityStep.x, MAX_DELTA);
+                    assert.closeTo(currentStep.y, data.expectedVelocityStep.y, MAX_DELTA);
+                    assert.closeTo(currentStep.z, data.expectedVelocityStep.z, MAX_DELTA);
+                });
+                const currentBurstStep = navigation.spaceshipBurstStep();
+                it('should calculate burst step well', () => {
+                    assert.closeTo(currentBurstStep.x, data.expectedBurstStep.x, MAX_DELTA);
+                    assert.closeTo(currentBurstStep.y, data.expectedBurstStep.y, MAX_DELTA);
+                    assert.closeTo(currentBurstStep.z, data.expectedBurstStep.z, MAX_DELTA);
+                });
+                it('should calculate velocity direction custom well', () => {
+                    const addedStep = currentStep.clone().add(currentBurstStep.clone());
+                    let expectation = (addedStep.normalize()).angleTo(currentStep.clone().normalize());
+                    assert.closeTo(navigation.velocityDirection - expectation, data.expectedVelocityDirection, MAX_DELTA);
+                });
+                it('should update well', () => {
+                    navigation.changeVelocityWithBurstAmount();
+                    assert.equal(navigation.velocity, data.expectedVelocity);
+                    assert.closeTo(navigation.velocityDirection, data.expectedVelocityDirection, MAX_DELTA);
+                });
+            });
+        });
+    });
     describe('Burst', () => {
         const navigation = createNavigation();
         const burstStep = navigation.burstDuration / 2;
@@ -305,115 +394,14 @@ describe('Navigation', () => {
         const navigation = createNavigation();
         const burstStep = navigation.burstDuration / 2;
         const initialBurstTime = 10;
-        describe('Burst flow with 0 rotation', () => {
-            navigation.setState('burst');
-            navigation.direction = 0;
-            navigation.group.position.x = 0;
-            navigation.group.position.y = 0;
-            navigation.group.position.z = 0;
-            navigation.velocity = 0;
-            navigation.group.rotation.x = 0;
-            navigation.group.rotation.y = 0;
-            navigation.group.rotation.z = 0;
-            describe('Start Burst', () => {
-                navigation.update(initialBurstTime);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, 0, new Vector3(0, 1, 0), true);
-            });
-            describe('Halftime', () => {
-                navigation.update(initialBurstTime + burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, 0, new Vector3(0, 2, 0), true);
-            });
-            describe('Stop Burst', () => {
-                navigation.update(initialBurstTime + 2 * burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, 0, 'idle', 1, 0, new Vector3(0, 3, 0), false);
-            });
-        });
-        describe('Burst flow with 90 deg. rotation', () => {
-            navigation.group.position.x = 0;
-            navigation.group.position.y = 0;
-            navigation.group.position.z = 0;
-            navigation.velocity = 0;
-            navigation.group.rotation.x = 0;
-            navigation.group.rotation.y = 0;
-            navigation.group.rotation.z = Math.PI / 2;
-            navigation.burstTimer = 0;
-            navigation.setState('burst');
-            describe('Start Burst', () => {
-                navigation.update(initialBurstTime);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, Math.PI / 2, new Vector3(-1, 0, 0), true);
-            });
-            describe('Halftime', () => {
-                navigation.update(initialBurstTime + burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, Math.PI / 2, new Vector3(-2, 0, 0), true);
-            });
-            describe('Stop Burst', () => {
-                navigation.update(initialBurstTime + 2 * burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, 0, 'idle', 1, Math.PI / 2, new Vector3(-3, 0, 0), false);
-            });
-            describe('Start Burst again', () => {
-                navigation.setState('burst');
-                navigation.update(initialBurstTime);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 2, Math.PI / 2, new Vector3(-5, 0, 0), true);
-            });
-        });
-        describe('Burst flow with -90 deg. rotation', () => {
-            navigation.group.position.x = 0;
-            navigation.group.position.y = 0;
-            navigation.group.position.z = 0;
-            navigation.velocity = 0;
-            navigation.group.rotation.x = 0;
-            navigation.group.rotation.y = 0;
-            navigation.group.rotation.z = -Math.PI / 2;
-            navigation.burstTimer = 0;
-            navigation.setState('burst');
-            describe('Start Burst', () => {
-                navigation.update(initialBurstTime);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, -Math.PI / 2, new Vector3(1, 0, 0), true);
-            });
-            describe('Halftime', () => {
-                navigation.update(initialBurstTime + burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, -Math.PI / 2, new Vector3(2, 0, 0), true);
-            });
-            describe('Stop Burst', () => {
-                navigation.update(initialBurstTime + 2 * burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, 0, 'idle', 1, -Math.PI / 2, new Vector3(3, 0, 0), false);
-            });
-        });
-        describe('Burst flow with -180 / 180 deg. rotation', () => {
-            navigation.group.position.x = 0;
-            navigation.group.position.y = 0;
-            navigation.group.position.z = 0;
-            navigation.velocity = 0;
-            navigation.group.rotation.x = 0;
-            navigation.group.rotation.y = 0;
-            navigation.group.rotation.z = Math.PI;
-            navigation.burstTimer = 0;
-            navigation.setState('burst');
-            describe('Start Burst', () => {
-                navigation.update(initialBurstTime);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, Math.PI, new Vector3(0, -1, 0), true);
-            });
-            describe('Halftime', () => {
-                navigation.update(initialBurstTime + burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, initialBurstTime, 'burst', 1, Math.PI, new Vector3(0, -2, 0), true);
-            });
-            describe('Stop Burst', () => {
-                navigation.update(initialBurstTime + 2 * burstStep);
-                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
-                checkNavigation(navigation, 0, 'idle', 1, Math.PI, new Vector3(0, -3, 0), false);
-            });
+        const testDataBurstWithInitialDirection = [
+            { 'directionRad': 0, 'positions': [{ 'x': 0, 'y': 1, 'z': 0 },{ 'x': 0, 'y': 2, 'z': 0 },{ 'x': 0, 'y': 3, 'z': 0 },{ 'x': 0, 'y': 5, 'z': 0 }] },
+            { 'directionRad': 3 * Math.PI / 2, 'positions': [{ 'x': 1, 'y': 0, 'z': 0 },{ 'x': 2, 'y': 0, 'z': 0 },{ 'x': 3, 'y': 0, 'z': 0 },{ 'x': 5, 'y': 0, 'z': 0 }] },
+            { 'directionRad': Math.PI, 'positions': [{ 'x': 0, 'y': -1, 'z': 0 },{ 'x': 0, 'y': -2, 'z': 0 },{ 'x': 0, 'y': -3, 'z': 0 },{ 'x': 0, 'y': -5, 'z': 0 }] },
+            { 'directionRad': Math.PI / 2, 'positions': [{ 'x': -1, 'y': 0, 'z': 0 },{ 'x': -2, 'y': 0, 'z': 0 },{ 'x': -3, 'y': 0, 'z': 0 },{ 'x': -5, 'y': 0, 'z': 0 }] },
+        ];
+        testDataBurstWithInitialDirection.forEach((data) => {
+            testCaseBurstFlowWithInitialRotation(data.directionRad, data.positions);
         });
         describe('Move then rotate', () => {
             navigation.group.position.x = 0;
