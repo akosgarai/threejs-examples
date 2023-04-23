@@ -80,10 +80,10 @@ class Navigation {
             this.velocity = newStep.length();
         }
         // The rotation should be between -180 and 180 degrees.
-        if (this.velocityDirection > Math.PI) {
+        if (this.velocityDirection > 2 * Math.PI) {
             this.velocityDirection -= 2 * Math.PI;
         }
-        if (this.velocityDirection < -Math.PI) {
+        if (this.velocityDirection < 0) {
             this.velocityDirection += 2 * Math.PI;
         }
 
