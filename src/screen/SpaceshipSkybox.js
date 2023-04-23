@@ -109,8 +109,11 @@ class SpaceshipSkyboxScreen extends BasicScreen {
                 case 'spaceshipRotation':
                     // calculate the rotation in degrees.
                     // right is 90 degrees, left is -90 degrees.
-                    const rotation = this.navigation.group.rotation.z * -180 / Math.PI;
-                    item.setValue(rotation);
+                    let rotation = this.navigation.rotationAngleDegree;
+                    if (rotation > 180) {
+                        rotation = rotation - 360;
+                    }
+                    item.setValue(-rotation);
                     break;
                 case 'spaceshipVelocity':
                     item.setValue(this.navigation.velocity);

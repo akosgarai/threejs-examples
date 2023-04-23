@@ -35,6 +35,7 @@ class Navigation {
         this.state = 'idle';
         this.engineBurstAmount = 1;
         this.engineRotationAmount = 1;
+        this.rotationAngleDegree = 0;
         this.burstDuration = 1000;
         this.burstTimer = 0;
         this.velocity = 0;
@@ -105,14 +106,12 @@ class Navigation {
         if (this.state !== 'rotatingLeft' && this.state !== 'rotatingRight') {
             return;
         }
-        this.group.rotation.z += MathUtils.degToRad(angle);
-        // The rotation should be between -180 and 180 degrees.
-        if (this.group.rotation.z > Math.PI) {
-            this.group.rotation.z -= 2 * Math.PI;
+        this.rotationAngleDegree += angle;
+        this.rotationAngleDegree = this.rotationAngleDegree % 360;
+        if (this.rotationAngleDegree < 0) {
+            this.rotationAngleDegree += 360;
         }
-        if (this.group.rotation.z < -Math.PI) {
-            this.group.rotation.z += 2 * Math.PI;
-        }
+        this.group.rotation.z = MathUtils.degToRad(this.rotationAngleDegree);
         this.setState('idle');
     }
 
