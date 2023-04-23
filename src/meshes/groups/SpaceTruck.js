@@ -56,8 +56,6 @@ class Navigation {
     }
 
     burst(now) {
-        const rotationComponent = this.group.rotation.z;
-        console.log('burst rotation', rotationComponent);
         if (this.burstTimer === 0) {
             this.burstTimer = now;
             // Burst goes here.
@@ -69,15 +67,15 @@ class Navigation {
             // If the velocity is 0, then the new velocity is 1 and the new velocity direction is the opposite of the rotation direction.
             if (this.velocity === 0) {
                 this.velocity = 1;
-                this.velocityDirection = rotationComponent;
+                this.velocityDirection = this.group.rotation.z;
                 this.setState('burst');
                 return;
             }
             const currentStep = this.spaceshipVelocityStep();
-            const burstStep = (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), rotationComponent);
+            const burstStep = (new Vector3(0, 1, 0)).applyEuler(this.group.rotation);
             const newStep = currentStep.clone().add(burstStep.clone());
             // calculate the new velocity and velocity direction.
-            this.velocityDirection = newStep.angleTo(new Vector3(0, 1, 0));
+            this.velocityDirection = (new Vector3(0, 1, 0)).angleTo(newStep);
             this.velocity = newStep.length();
         }
         // The rotation should be between -180 and 180 degrees.

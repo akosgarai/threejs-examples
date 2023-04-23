@@ -490,7 +490,7 @@ describe('Navigation', () => {
                 });
             });
         });
-        describe('Burst multiple time', () => {
+        describe('Burst multiple time with 0 deg rotation', () => {
             navigation.group.position.x = 0;
             navigation.group.position.y = 0;
             navigation.group.position.z = 0;
@@ -500,20 +500,68 @@ describe('Navigation', () => {
             navigation.group.rotation.z = 0;
             navigation.burstTimer = 0;
             navigation.velocityDirection = 0;
-            navigation.setState('burst');
-            describe('Move forward', () => {
+            describe('Burst first time', () => {
+                navigation.setState('burst');
                 // we are not bursting, so that the time is not important
                 navigation.update(initialBurstTime);
-                const testNavigation = Object.assign({}, navigation);
-                it('should set the velocity', () => {
-                    assert.equal(testNavigation.velocity, 2);
-                });
-                const testGroup = testNavigation.group.clone();
-                it('should set the position of the group', () => {
-                    assert.closeTo(testGroup.position.x, 0, MAX_DELTA);
-                    assert.closeTo(testGroup.position.y, 2, MAX_DELTA);
-                    assert.closeTo(testGroup.position.z, 0, MAX_DELTA);
-                });
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 2, 0, new Vector3(0, 2, 0), true);
+                navigation.update(initialBurstTime + burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 2, 0, new Vector3(0, 4, 0), true);
+                navigation.update(initialBurstTime + 2 * burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, 0, 'idle', 2, 0, new Vector3(0, 6, 0), false);
+            });
+            describe('Burst Second time', () => {
+                navigation.setState('burst');
+                // we are not bursting, so that the time is not important
+                navigation.update(initialBurstTime);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 3, 0, new Vector3(0, 9, 0), true);
+                navigation.update(initialBurstTime + burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 3, 0, new Vector3(0, 12, 0), true);
+                navigation.update(initialBurstTime + 2 * burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, 0, 'idle', 3, 0, new Vector3(0, 15, 0), false);
+            });
+        });
+        describe('Burst multiple time with 90 deg rotation', () => {
+            navigation.group.position.x = 0;
+            navigation.group.position.y = 0;
+            navigation.group.position.z = 0;
+            navigation.velocity = 1;
+            navigation.group.rotation.x = 0;
+            navigation.group.rotation.y = 0;
+            navigation.group.rotation.z = Math.PI / 2;
+            navigation.burstTimer = 0;
+            navigation.velocityDirection = Math.PI / 2;
+            describe('Burst first time', () => {
+                navigation.setState('burst');
+                // we are not bursting, so that the time is not important
+                navigation.update(initialBurstTime);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 2, Math.PI / 2, new Vector3(-2, 0, 0), true);
+                navigation.update(initialBurstTime + burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 2, Math.PI / 2, new Vector3(-4, 0, 0), true);
+                navigation.update(initialBurstTime + 2 * burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, 0, 'idle', 2, Math.PI / 2, new Vector3(-6, 0, 0), false);
+            });
+            describe('Burst Second time', () => {
+                navigation.setState('burst');
+                // we are not bursting, so that the time is not important
+                navigation.update(initialBurstTime);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 3, Math.PI / 2, new Vector3(-9, 0, 0), true);
+                navigation.update(initialBurstTime + burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, initialBurstTime, 'burst', 3, Math.PI / 2, new Vector3(-12, 0, 0), true);
+                navigation.update(initialBurstTime + 2 * burstStep);
+                // navigation, expectedBurstTimer, expectedState, expectedVelocity, expectedVelocityDirection, expectedPosition, expectedBurstVisible
+                checkNavigation(navigation, 0, 'idle', 3, Math.PI / 2, new Vector3(-15, 0, 0), false);
             });
         });
     });
