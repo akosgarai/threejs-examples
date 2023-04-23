@@ -67,24 +67,12 @@ class Navigation {
             // The new velocity and velocity direction is calculated by the following formula:
             // If the velocity is 0, then the new velocity is 1 and the new velocity direction is the opposite of the rotation direction.
             if (this.velocity === 0) {
-                this.velocity = 1;
+                this.velocity = this.engineBurstAmount;
                 this.velocityDirection = this.group.rotation.z;
                 this.setState('burst');
                 return;
             }
-            const currentStep = this.spaceshipVelocityStep();
-            const burstStep = (new Vector3(0, 1, 0)).applyEuler(this.group.rotation);
-            const newStep = currentStep.clone().add(burstStep.clone());
-            // calculate the new velocity and velocity direction.
-            this.velocityDirection = (new Vector3(0, 1, 0)).angleTo(newStep);
-            this.velocity = newStep.length();
-        }
-        // The rotation should be between -180 and 180 degrees.
-        if (this.velocityDirection > 2 * Math.PI) {
-            this.velocityDirection -= 2 * Math.PI;
-        }
-        if (this.velocityDirection < 0) {
-            this.velocityDirection += 2 * Math.PI;
+            this.changeVelocityWithBurstAmount();
         }
 
         if (now - this.burstTimer < this.burstDuration) {
@@ -123,8 +111,28 @@ class Navigation {
     spaceshipVelocityStep() {
         return this.velocityDirectionUnitVector().multiplyScalar(this.velocity);
     }
+    spaceshipBurstStep() {
+        return this.getRotatedForwardDirectionWith(this.group.rotation.z).multiplyScalar(this.engineBurstAmount);
+    }
     velocityDirectionUnitVector() {
-        return (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), this.velocityDirection).normalize();
+        return this.getRotatedForwardDirectionWith(this.velocityDirection);
+    }
+    getRotatedForwardDirectionWith(angle) {
+        return (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), angle).normalize();
+    }
+    changeVelocityWithBurstAmount() {
+        const currentStep = this.spaceshipVelocityStep();
+        const burstStep = this.spaceshipBurstStep();
+        const newStep = currentStep.clone().add(burstStep.clone());
+        const directionDiff = currentStep.angleTo(newStep);
+        // calculate the new velocity and velocity direction.
+        this.velocityDirection += directionDiff;
+        this.velocity = newStep.length();
+        // The rotation should be between 0 and 2 PI rad.
+        this.velocityDirection = this.velocityDirection % (2 * Math.PI);
+        if (this.velocityDirection < 0) {
+            this.velocityDirection += 2 * Math.PI;
+        }
     }
     move() {
         if (this.velocity === 0) {
