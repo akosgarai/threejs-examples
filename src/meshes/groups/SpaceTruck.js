@@ -124,15 +124,12 @@ class Navigation {
         const currentStep = this.spaceshipVelocityStep();
         const burstStep = this.spaceshipBurstStep();
         const newStep = currentStep.clone().add(burstStep.clone());
-        const directionDiff = currentStep.angleTo(newStep);
-        // calculate the new velocity and velocity direction.
-        this.velocityDirection += directionDiff;
         this.velocity = newStep.length();
         if (this.velocity < 0.00001) {
             this.velocity = 0;
         }
         // The rotation should be between 0 and 2 PI rad.
-        this.velocityDirection = this.velocityDirection % (2 * Math.PI);
+        this.velocityDirection = Math.atan2(newStep.y, newStep.x) - Math.PI/2;
         if (this.velocityDirection < 0) {
             this.velocityDirection += 2 * Math.PI;
         }
