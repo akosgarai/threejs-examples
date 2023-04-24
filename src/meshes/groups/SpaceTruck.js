@@ -128,6 +128,9 @@ class Navigation {
         // calculate the new velocity and velocity direction.
         this.velocityDirection += directionDiff;
         this.velocity = newStep.length();
+        if (this.velocity < 0.00001) {
+            this.velocity = 0;
+        }
         // The rotation should be between 0 and 2 PI rad.
         this.velocityDirection = this.velocityDirection % (2 * Math.PI);
         if (this.velocityDirection < 0) {

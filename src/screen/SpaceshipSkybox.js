@@ -95,10 +95,10 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         const code = event.code;
         switch (code) {
             case 'KeyP':
-				const ship = this.scene.getObjectByName('spaceship');
-                console.log(ship.position, ship.rotation);
-				console.log(this.camera.position, this.camera.rotation);
-                console.log(this.navigation.velocity, this.navigation.velocityDirection);
+                const ship = this.scene.getObjectByName('spaceship');
+                console.log('ship', ship.position, ship.rotation);
+                console.log('camera', this.camera.position, this.camera.rotation);
+                console.log('navigation', this.navigation.velocity, this.navigation.velocityDirection);
                 break;
         }
     }
@@ -143,8 +143,8 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         skybox.position.set(ship.position.x, ship.position.y, 0);
         // simulate the spaceship moving through the skybox.
         // rotate the skybox in the opposite direction of the spaceship movement.
-        const rotationAxisShip = (new Vector3(0, 1, 0)).applyAxisAngle(new Vector3(0, 0, 1), -this.controls.velocityDirection * Math.PI / 180).normalize();
-        const rotationAxis = (new Vector3(0, 0, 1)).applyAxisAngle(rotationAxisShip, -Math.PI / 2);
+        const forwardDirectionShip = this.navigation.velocityDirectionUnitVector();
+        const rotationAxis = (forwardDirectionShip).applyAxisAngle(new Vector3(0, 0, 1), Math.PI / 2);
         skybox.rotateOnAxis(rotationAxis, 0.001 * this.controls.spaceshipVelocity);
     }
 }
