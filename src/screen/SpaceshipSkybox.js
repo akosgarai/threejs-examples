@@ -119,7 +119,11 @@ class SpaceshipSkyboxScreen extends BasicScreen {
                     item.setValue(this.navigation.velocity);
                     break;
                 case 'velocityDirection':
-                    item.setValue(this.navigation.velocityDirection * -180 / Math.PI);
+                    let rotationDeg = this.navigation.velocityDirection * 180 / Math.PI;
+                    if (rotationDeg > 180) {
+                        rotationDeg = rotationDeg - 360;
+                    }
+                    item.setValue(-rotationDeg);
                     break;
             }
         })
