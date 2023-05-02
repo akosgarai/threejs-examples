@@ -158,4 +158,25 @@ class Navigation {
     }
 }
 
-export { SpaceTruck, Navigation };
+class SkyBoxTransformer {
+	constructor(skyBox) {
+		this.skyBox = skyBox;
+	}
+
+	transform(rotationAngle, velocity, position) {
+		// Skybox has to be in the same position as the spaceship.
+		this.skyBox.position.set(position.x, position.y, 0);
+		// The skybox has to rotate to the opposite direction of the spaceship.
+        this.skyBox.rotateOnAxis(this.transformationAxis(rotationAngle), 0.001 * velocity);
+	}
+
+	transformationAxis(angleRad) {
+		return (new Vector3(-1, 0, 0)).applyAxisAngle(new Vector3(0, 0, 1), angleRad);
+	}
+}
+
+export {
+    Navigation,
+    SkyBoxTransformer,
+    SpaceTruck,
+};

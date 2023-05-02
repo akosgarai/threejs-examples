@@ -11,7 +11,7 @@ import {
 } from 'three';
 import { BasicScreen } from './BasicScreen.js';
 import { SkyBox } from '../meshes/SkyBox.js';
-import { SpaceTruck, Navigation } from '../meshes/groups/SpaceTruck.js';
+import { SpaceTruck, SkyBoxTransformer, Navigation } from '../meshes/groups/SpaceTruck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
 /*
@@ -46,6 +46,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         this.screenNode.appendChild(this.renderer.domElement);
 
         const skyBox = new SkyBox('skybox', 'skybox', 100000).getSkyBox();
+        this.skyBoxTransformer = new SkyBoxTransformer(skyBox);
         this.scene.add(skyBox);
 
         const ambientLight = new AmbientLight();
@@ -96,9 +97,10 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         switch (code) {
             case 'KeyP':
                 const ship = this.scene.getObjectByName('spaceship');
-                console.log('ship', ship.position, ship.rotation);
-                console.log('camera', this.camera.position, this.camera.rotation);
-                console.log('navigation', this.navigation.velocity, this.navigation.velocityDirection);
+                console.log('navigation ' + this.navigation.velocity + ' velocity ' + this.navigation.velocityDirection + ' direction');
+				console.log('ship rotation: ' + ship.rotation.z);
+				console.log('ship position: ' + ship.position.x + ' ' + ship.position.y);
+                console.log('skybox', this.skyBoxTransformer.skyBox.rotation);
                 break;
         }
     }
@@ -134,7 +136,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         this.navigation.move();
         // update the camera position.
         this.syncCamera();
-        //this.syncSkybox();
+        this.syncSkybox();
     }
     syncCamera() {
         const ship = this.navigation.group;
@@ -142,14 +144,7 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         this.camera.lookAt(ship.position);
     }
     syncSkybox() {
-        const ship = this.navigation.group;
-        const skybox = this.scene.getObjectByName('skybox');
-        skybox.position.set(ship.position.x, ship.position.y, 0);
-        // simulate the spaceship moving through the skybox.
-        // rotate the skybox in the opposite direction of the spaceship movement.
-        const forwardDirectionShip = this.navigation.velocityDirectionUnitVector();
-        const rotationAxis = (forwardDirectionShip).applyAxisAngle(new Vector3(0, 0, 1), Math.PI / 2);
-        skybox.rotateOnAxis(rotationAxis, 0.001 * this.controls.spaceshipVelocity);
+        this.skyBoxTransformer.transform(this.navigation.velocityDirection, this.navigation.velocity, this.navigation.group.position);
     }
 }
 

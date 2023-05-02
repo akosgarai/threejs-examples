@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { Euler, Group, Vector3 } from 'three';
 
-import { SpaceTruck, Navigation } from '../src/meshes/groups/SpaceTruck.js';
+import { SpaceTruck, SkyBoxTransformer, Navigation } from '../src/meshes/groups/SpaceTruck.js';
 
 const MAX_DELTA = 0.000001;
 
@@ -601,4 +601,49 @@ describe('Navigation', () => {
             });
         });
     });
+});
+describe('SkyBoxTransformer', () => {
+	describe('transformationAxis', () => {
+		const testData = [
+			{'rot': 0, 'expected': new Vector3(-1, 0, 0)},
+			{'rot': 180, 'expected': new Vector3(1, 0, 0)},
+			{'rot': 90, 'expected': new Vector3(0, 1, 0)},
+			{'rot': 270, 'expected': new Vector3(0, -1, 0)},
+		];
+		testData.forEach((data) => {
+			const vectorLabel = data.expected.x + ', ' + data.expected.y + ', ' + data.expected.z;
+			it('should return ' + vectorLabel + ' for ' + data.rot, () => {
+				const group = new Group();
+				const transformer = new SkyBoxTransformer(group);
+				const forward = transformer.transformationAxis(data.rot*Math.PI/-180);
+				assert.closeTo(forward.x, data.expected.x, MAX_DELTA, 'x');
+				assert.closeTo(forward.y, data.expected.y, MAX_DELTA, 'y');
+				assert.closeTo(forward.z, data.expected.z, MAX_DELTA, 'z');
+			});
+		});
+	});
+	describe('transform', () => {
+		const testData = [
+			{'rot': 0, 'expected': {'x':-0.001, 'y': 0, 'z': 0}, 'velocity': 1, 'position': {'x': 0, 'y': 0, 'z': 0}},
+			{'rot': 0, 'expected': {'x':-0.001, 'y': 0, 'z': 0}, 'velocity': 1, 'position': {'x': 0, 'y': 1000, 'z': 0}},
+			{'rot': 0, 'expected': {'x':-0.002, 'y': 0, 'z': 0}, 'velocity': 2, 'position': {'x': 0, 'y': 0, 'z': 0}},
+			{'rot': 0, 'expected': {'x':-0.002, 'y': 0, 'z': 0}, 'velocity': 2, 'position': {'x': 0, 'y': 1000, 'z': 0}},
+			{'rot': 180, 'expected': {'x': 0.001, 'y': 0, 'z': 0}, 'velocity': 1, 'position': {'x': 0, 'y': 0, 'z': 0}},
+			{'rot': 180, 'expected': {'x': 0.001, 'y': 0, 'z': 0}, 'velocity': 1, 'position': {'x': 0, 'y': -1000, 'z': 0}},
+			{'rot': 180, 'expected': {'x': 0.002, 'y': 0, 'z': 0}, 'velocity': 2, 'position': {'x': 0, 'y': 0, 'z': 0}},
+			{'rot': 180, 'expected': {'x': 0.002, 'y': 0, 'z': 0}, 'velocity': 2, 'position': {'x': 0, 'y': 1000, 'z': 0}},
+		];
+		testData.forEach((data) => {
+			const vectorLabel = data.expected.x + ', ' + data.expected.y + ', ' + data.expected.z;
+			const positionLabel = data.position.x + ', ' + data.position.y + ', ' + data.position.z;
+			it('should return ' + vectorLabel + ' for ' + data.rot + ' rot ' + data.velocity + ' velocity at ' + positionLabel, () => {
+				const group = new Group();
+				const transformer = new SkyBoxTransformer(group);
+				transformer.transform(data.rot*Math.PI/-180, data.velocity, data.position);
+				assert.closeTo(transformer.skyBox.rotation.x, data.expected.x, MAX_DELTA, 'x');
+				assert.closeTo(transformer.skyBox.rotation.y, data.expected.y, MAX_DELTA, 'y');
+				assert.closeTo(transformer.skyBox.rotation.z, data.expected.z, MAX_DELTA, 'z');
+			});
+		});
+	});
 });
