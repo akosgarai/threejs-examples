@@ -159,23 +159,54 @@ class Navigation {
 }
 
 class SkyBoxTransformer {
-	constructor(skyBox) {
-		this.skyBox = skyBox;
-	}
+    constructor(skyBox) {
+        this.skyBox = skyBox;
+    }
 
-	transform(rotationAngle, velocity, position) {
-		// Skybox has to be in the same position as the spaceship.
-		this.skyBox.position.set(position.x, position.y, 0);
-		// The skybox has to rotate to the opposite direction of the spaceship.
+    transform(rotationAngle, velocity, position) {
+        // Skybox has to be in the same position as the spaceship.
+        this.skyBox.position.set(position.x, position.y, 0);
+        // The skybox has to rotate to the opposite direction of the spaceship.
         this.skyBox.rotateOnAxis(this.transformationAxis(rotationAngle), 0.001 * velocity);
-	}
+    }
 
-	transformationAxis(angleRad) {
-		return (new Vector3(-1, 0, 0)).applyAxisAngle(new Vector3(0, 0, 1), angleRad);
+    transformationAxis(angleRad) {
+        return (new Vector3(-1, 0, 0)).applyAxisAngle(new Vector3(0, 0, 1), angleRad);
+    }
+}
+
+class Compass {
+	constructor() {
+		// Create the compass. The bottom layer is the assets/texture/compass/compass.png.
+		// The above layer is the rotation indicator (assets/texture/compass/compassRotation.png).
+		// The next layer is the direction indicator (assets/texture/compass/compassDirection.png).
+		// The top layer is the screw (assets/texture/compass/compassScrew.png).
+		// Every layer is 200x200 pixels.
+		this.group = new Group();
+        const compassBase = new RectangleWithTexture(150, 150, 'compass-base', 'assets/texture/compass/compass.png', true).getMesh();
+		const compassRotation = new RectangleWithTexture(150, 150, 'compass-rotation', 'assets/texture/compass/compassRotation.png', true).getMesh();
+		compassRotation.position.set(0, 0, 1);
+		const compassDirection = new RectangleWithTexture(150, 150, 'compass-direction', 'assets/texture/compass/compassDirection.png', true).getMesh();
+		compassDirection.position.set(0, 0, 2);
+		const compassScrew = new RectangleWithTexture(150, 150, 'compass-screw', 'assets/texture/compass/compassScrew.png', true).getMesh();
+		compassScrew.position.set(0, 0, 3);
+		this.group.add(compassBase);
+		this.group.add(compassRotation);
+		this.group.add(compassDirection);
+		this.group.add(compassScrew);
+	}
+	getGroup() {
+		return this.group;
+	}
+	update(rotationAngle, directionAngle, shipPosition) {
+		this.group.position.set(shipPosition.x+150, shipPosition.y+150, 0);
+		this.group.getObjectByName('compass-rotation').rotation.z = rotationAngle;
+		this.group.getObjectByName('compass-direction').rotation.z = directionAngle;
 	}
 }
 
 export {
+    Compass,
     Navigation,
     SkyBoxTransformer,
     SpaceTruck,

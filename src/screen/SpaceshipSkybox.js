@@ -11,7 +11,7 @@ import {
 } from 'three';
 import { BasicScreen } from './BasicScreen.js';
 import { SkyBox } from '../meshes/SkyBox.js';
-import { SpaceTruck, SkyBoxTransformer, Navigation } from '../meshes/groups/SpaceTruck.js';
+import { Compass, SpaceTruck, SkyBoxTransformer, Navigation } from '../meshes/groups/SpaceTruck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
 /*
@@ -52,6 +52,8 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         const ambientLight = new AmbientLight();
         this.scene.add(ambientLight);
         this.initSpaceShip();
+        this.compass = new Compass();
+        this.scene.add(this.compass.getGroup());
 
         gui.add(this.controls, 'spaceshipRotation');
         gui.add(this.controls, 'spaceshipVelocity');
@@ -136,6 +138,8 @@ class SpaceshipSkyboxScreen extends BasicScreen {
         this.navigation.move();
         // update the camera position.
         this.syncCamera();
+        // update the compass
+        this.compass.update(this.navigation.group.rotation.z, this.navigation.velocityDirection, this.navigation.group.position);
         this.syncSkybox();
     }
     syncCamera() {
