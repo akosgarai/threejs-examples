@@ -2,6 +2,7 @@ import {
     AmbientLight,
     Mesh,
     MeshBasicMaterial,
+    OrthographicCamera,
     PerspectiveCamera,
     PlaneGeometry,
     Scene,
@@ -9,7 +10,7 @@ import {
     Vector3,
     WebGLRenderer,
 } from 'three';
-import { BasicScreen } from './BasicScreen.js';
+import { HUDScreen } from './HUDScreen.js';
 import { SkyBox } from '../meshes/SkyBox.js';
 import { Compass, SpaceTruck, SkyBoxTransformer, Navigation } from '../meshes/groups/SpaceTruck.js';
 
@@ -23,7 +24,7 @@ import { Compass, SpaceTruck, SkyBoxTransformer, Navigation } from '../meshes/gr
  * 3. The spaceship is bursting the engine.
  * 4. The spaceship is idle. - the default state. In this state the spaceship is not rotating and the engine is not bursting, so the spaceship is moving with a constant velocity to the velocity direction.
  * */
-class SpaceshipSkyboxScreen extends BasicScreen {
+class SpaceshipSkyboxScreen extends HUDScreen {
     constructor(name, screen) {
         const control = new function() {
             // rotation of the spaceship around the z axis.
@@ -36,24 +37,29 @@ class SpaceshipSkyboxScreen extends BasicScreen {
     }
     run(gui) {
         // create a scene, that will hold all our elements such as objects, cameras and lights.
-        this.scene = new Scene();
+        const scene = new Scene();
+        const ortoScene = new Scene();
         // create a camera, which defines where we're looking at.
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 200000);
+        const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 200000);
+        const ortoCamera = new OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -2000, 20000);
+        this.renderables.push({'camera': camera, 'scene': scene});
+        this.renderables.push({'camera': ortoCamera, 'scene': ortoScene});
         // create a render, sets the background color and the size
         this.renderer = new WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x000000, 1.0);
+        this.renderer.autoClear = false;
         this.screenNode.appendChild(this.renderer.domElement);
 
         const skyBox = new SkyBox('skybox', 'skybox', 100000).getSkyBox();
         this.skyBoxTransformer = new SkyBoxTransformer(skyBox);
-        this.scene.add(skyBox);
+        scene.add(skyBox);
 
         const ambientLight = new AmbientLight();
-        this.scene.add(ambientLight);
+        scene.add(ambientLight);
         this.initSpaceShip();
         this.compass = new Compass();
-        this.scene.add(this.compass.getGroup());
+        ortoScene.add(this.compass.getGroup());
 
         gui.add(this.controls, 'spaceshipRotation');
         gui.add(this.controls, 'spaceshipVelocity');
@@ -70,11 +76,11 @@ class SpaceshipSkyboxScreen extends BasicScreen {
     }
     initSpaceShip() {
         const spaceship = new SpaceTruck('spaceship').getGroup();
-        this.scene.add(spaceship);
+        this.renderables[0].scene.add(spaceship);
         this.navigation = new Navigation(spaceship);
         // The camera is 1000 units above the spaceship.
-        this.camera.position.set(0, 0, 1000);
-        this.camera.lookAt(spaceship.position);
+        this.renderables[0].camera.position.set(0, 0, 1000);
+        this.renderables[0].camera.lookAt(spaceship.position);
     }
     // Key press event handler.
     onKeyPress(event) {
@@ -144,8 +150,9 @@ class SpaceshipSkyboxScreen extends BasicScreen {
     }
     syncCamera() {
         const ship = this.navigation.group;
-        this.camera.position.set(ship.position.x, ship.position.y, 1000);
-        this.camera.lookAt(ship.position);
+        this.renderables[0].camera.position.set(ship.position.x, ship.position.y, 1000);
+        this.renderables[0].camera.lookAt(ship.position);
+        this.renderables[1].camera.position.set(ship.position.x, ship.position.y, 1000);
     }
     syncSkybox() {
         this.skyBoxTransformer.transform(this.navigation.velocityDirection, this.navigation.velocity, this.navigation.group.position);
