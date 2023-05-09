@@ -53,7 +53,7 @@ class HUDScreen {
             // in case of perspective camera, we need to update the aspect ratio.
             // in case of orthographic camera, we need to update the size of the camera.
             if (renderable.camera.isPerspectiveCamera) {
-            renderable.camera.aspect = window.innerWidth / window.innerHeight;
+                renderable.camera.aspect = window.innerWidth / window.innerHeight;
             } else {
                 renderable.camera.left = window.innerWidth / -2;
                 renderable.camera.right = window.innerWidth / 2;
