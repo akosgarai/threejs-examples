@@ -158,23 +158,6 @@ class Navigation {
     }
 }
 
-class SkyBoxTransformer {
-    constructor(skyBox) {
-        this.skyBox = skyBox;
-    }
-
-    transform(rotationAngle, velocity, position) {
-        // Skybox has to be in the same position as the spaceship.
-        this.skyBox.position.set(position.x, position.y, 0);
-        // The skybox has to rotate to the opposite direction of the spaceship.
-        this.skyBox.rotateOnAxis(this.transformationAxis(rotationAngle), 0.001 * velocity);
-    }
-
-    transformationAxis(angleRad) {
-        return (new Vector3(-1, 0, 0)).applyAxisAngle(new Vector3(0, 0, 1), angleRad);
-    }
-}
-
 class Compass {
     constructor() {
         // Create the compass. The bottom layer is the assets/texture/compass/compass.png.
@@ -205,9 +188,82 @@ class Compass {
     }
 }
 
+// The space contains 9 textured meshes in a group.
+// The space is a 3x3 grid. The middle is the ship.
+// When it moves out from the middle, the grid changes with it.
+// The grid is 1000x1000 pixels.
+class Space {
+    constructor() {
+        this.spaceZ = -1000;
+        this.gridSize = 10000;
+        this.group = new Group();
+        this.grid = [
+            // Top row.
+            [
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'top-left', 'assets/space/space-background-simple.png', true).getMesh(),
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'top-middle', 'assets/space/space-background-simple.png', true).getMesh(),
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'top-right', 'assets/space/space-background-simple.png', true).getMesh(),
+            ],
+            // Middle row.
+            [
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'middle-left', 'assets/space/space-background-simple.png', true).getMesh(),
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'middle-middle', 'assets/space/space-background-simple.png', true).getMesh(),
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'middle-right', 'assets/space/space-background-simple.png', true).getMesh(),
+            ],
+            // Bottom row.
+            [
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'bottom-left', 'assets/space/space-background-simple.png', true).getMesh(),
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'bottom-middle', 'assets/space/space-background-simple.png', true).getMesh(),
+                new RectangleWithTexture(this.gridSize, this.gridSize, 'bottom-right', 'assets/space/space-background-simple.png', true).getMesh(),
+            ],
+        ];
+
+        this.buildGrid(new Vector3(0, 0, 0));
+
+        this.grid.forEach((row) => {
+            row.forEach((grid) => {
+                this.group.add(grid);
+            });
+        });
+    }
+    buildGrid(middlePosition) {
+        const tileX = Math.floor(middlePosition.x / this.gridSize);
+        const tileY = Math.floor(middlePosition.y / this.gridSize);
+        const typeX = this.mod3(tileX+1);
+        const typeY = this.mod3(tileY+1);
+        // middle position
+        this.grid[typeY][typeX].position.set(tileX*this.gridSize, tileY*this.gridSize, this.spaceZ);
+        // left from the middle position
+        this.grid[typeY][this.mod3(typeX-1)].position.set((tileX-1)*this.gridSize, tileY*this.gridSize, this.spaceZ);
+        // right from the middle position
+        this.grid[typeY][this.mod3(typeX+1)].position.set((tileX+1)*this.gridSize, tileY*this.gridSize, this.spaceZ);
+        // top row, left to right
+        this.grid[this.mod3(typeY+1)][this.mod3(typeX-1)].position.set((tileX-1)*this.gridSize, (tileY+1)*this.gridSize, this.spaceZ);
+        this.grid[this.mod3(typeY+1)][typeX].position.set(tileX*this.gridSize, (tileY+1)*this.gridSize, this.spaceZ);
+        this.grid[this.mod3(typeY+1)][this.mod3(typeX+1)].position.set((tileX+1)*this.gridSize, (tileY+1)*this.gridSize, this.spaceZ);
+        // bottom row, left to right
+        this.grid[this.mod3(typeY-1)][this.mod3(typeX-1)].position.set((tileX-1)*this.gridSize, (tileY-1)*this.gridSize, this.spaceZ);
+        this.grid[this.mod3(typeY-1)][typeX].position.set(tileX*this.gridSize, (tileY-1)*this.gridSize, this.spaceZ);
+        this.grid[this.mod3(typeY-1)][this.mod3(typeX+1)].position.set((tileX+1)*this.gridSize, (tileY-1)*this.gridSize, this.spaceZ);
+    }
+    mod3(n) {
+        let mod = n % 3;
+        if (mod < 0) {
+            mod += 3;
+        }
+        return mod;
+    }
+    getGroup() {
+        return this.group;
+    }
+    update(shipPosition) {
+        this.buildGrid(shipPosition);
+    }
+}
+
 export {
     Compass,
     Navigation,
-    SkyBoxTransformer,
+    Space,
     SpaceTruck,
 };

@@ -11,8 +11,12 @@ import {
     WebGLRenderer,
 } from 'three';
 import { HUDScreen } from './HUDScreen.js';
-import { SkyBox } from '../meshes/SkyBox.js';
-import { Compass, SpaceTruck, SkyBoxTransformer, Navigation } from '../meshes/groups/SpaceTruck.js';
+import {
+    Compass,
+    Navigation,
+    Space,
+    SpaceTruck,
+} from '../meshes/groups/SpaceTruck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
 /*
@@ -51,9 +55,8 @@ class SpaceshipSkyboxScreen extends HUDScreen {
         this.renderer.autoClear = false;
         this.screenNode.appendChild(this.renderer.domElement);
 
-        const skyBox = new SkyBox('skybox', 'skybox', 100000).getSkyBox();
-        this.skyBoxTransformer = new SkyBoxTransformer(skyBox);
-        scene.add(skyBox);
+        this.space = new Space();
+        scene.add(this.space.getGroup());
 
         const ambientLight = new AmbientLight();
         scene.add(ambientLight);
@@ -104,11 +107,11 @@ class SpaceshipSkyboxScreen extends HUDScreen {
         const code = event.code;
         switch (code) {
             case 'KeyP':
-                const ship = this.scene.getObjectByName('spaceship');
+                const ship = this.renderables[0].scene.getObjectByName('spaceship');
                 console.log('navigation ' + this.navigation.velocity + ' velocity ' + this.navigation.velocityDirection + ' direction');
-				console.log('ship rotation: ' + ship.rotation.z);
-				console.log('ship position: ' + ship.position.x + ' ' + ship.position.y);
-                console.log('skybox', this.skyBoxTransformer.skyBox.rotation);
+                console.log('ship rotation: ' + ship.rotation.z);
+                console.log('ship position: ' + ship.position.x + ' ' + ship.position.y);
+                console.log('space', this.space.grid);
                 break;
         }
     }
@@ -146,16 +149,13 @@ class SpaceshipSkyboxScreen extends HUDScreen {
         this.syncCamera();
         // update the compass
         this.compass.update(this.navigation.group.rotation.z, this.navigation.velocityDirection, this.navigation.group.position);
-        this.syncSkybox();
+        this.space.update(this.navigation.group.position);
     }
     syncCamera() {
         const ship = this.navigation.group;
         this.renderables[0].camera.position.set(ship.position.x, ship.position.y, 1000);
         this.renderables[0].camera.lookAt(ship.position);
         this.renderables[1].camera.position.set(ship.position.x, ship.position.y, 1000);
-    }
-    syncSkybox() {
-        this.skyBoxTransformer.transform(this.navigation.velocityDirection, this.navigation.velocity, this.navigation.group.position);
     }
 }
 
