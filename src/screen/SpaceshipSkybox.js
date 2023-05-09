@@ -16,6 +16,7 @@ import {
     Navigation,
     Space,
     SpaceTruck,
+    VelocityDisplay,
 } from '../meshes/groups/SpaceTruck.js';
 
 // Based on the following document: https://codinhood.com/post/create-skybox-with-threejs
@@ -63,6 +64,9 @@ class SpaceshipSkyboxScreen extends HUDScreen {
         this.initSpaceShip();
         this.compass = new Compass();
         ortoScene.add(this.compass.getGroup());
+
+        this.velocityDisplay = new VelocityDisplay();
+        ortoScene.add(this.velocityDisplay.getGroup());
 
         gui.add(this.controls, 'spaceshipRotation');
         gui.add(this.controls, 'spaceshipVelocity');
@@ -150,6 +154,7 @@ class SpaceshipSkyboxScreen extends HUDScreen {
         // update the compass
         this.compass.update(this.navigation.group.rotation.z, this.navigation.velocityDirection, this.navigation.group.position);
         this.space.update(this.navigation.group.position);
+        this.velocityDisplay.update(this.navigation.velocity, this.navigation.group.position);
     }
     syncCamera() {
         const ship = this.navigation.group;

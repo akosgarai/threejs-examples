@@ -1,5 +1,13 @@
-import { Group, Vector3, MathUtils } from 'three';
-import { RectangleWithTexture } from '../Rectangles.js';
+import {
+    Color,
+    Group,
+    MathUtils,
+    Vector3,
+} from 'three';
+import {
+    RectangleWithColor,
+    RectangleWithTexture,
+} from '../Rectangles.js';
 /*
  * This class represents a basic Mesh group that looks like a space truck.
  */
@@ -191,6 +199,36 @@ class Compass {
     }
 }
 
+class VelocityDisplay {
+    constructor() {
+        this.group = new Group();
+        this.velocity = 0;
+        this.maxVelocity = 16;
+        this.width = 200;
+        this.height = 100;
+        const display = new RectangleWithTexture(this.width, this.height, 'velocity-display', 'assets/texture/velocity-display/velocityDisplay.png', true).getMesh();
+        display.position.set(0, 0, 1);
+        this.group.add(display);
+        const pointer = new RectangleWithColor(this.width / 2 -25, 5, 1, new Color(0x00ff00), 'velocity-pointer').getMesh();
+        pointer.position.set(0, 0, 2);
+        this.group.add(pointer);
+    }
+    getGroup() {
+        return this.group;
+    }
+    update(velocity, shipPosition) {
+        const width = window.innerWidth / 2;
+        const height = window.innerHeight / 2;
+        this.group.position.set(shipPosition.x+width - 200 - this.width / 2, shipPosition.y-height + this.height / 2 + 100, 0);
+        const pointer = this.group.getObjectByName('velocity-pointer');
+        const angle = velocity / this.maxVelocity * -Math.PI;
+        pointer.rotation.z = angle;
+        const x = Math.cos(angle) * (this.width / 8);
+        const y = Math.sin(angle) * (this.height / 2);
+        pointer.position.set(-x, -this.height/2-y, 2);
+    }
+}
+
 // The space contains 9 textured meshes in a group.
 // The space is a 3x3 grid. The middle is the ship.
 // When it moves out from the middle, the grid changes with it.
@@ -269,4 +307,5 @@ export {
     Navigation,
     Space,
     SpaceTruck,
+    VelocityDisplay,
 };
