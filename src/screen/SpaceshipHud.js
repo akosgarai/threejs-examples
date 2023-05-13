@@ -29,7 +29,7 @@ import {
  * 3. The spaceship is bursting the engine.
  * 4. The spaceship is idle. - the default state. In this state the spaceship is not rotating and the engine is not bursting, so the spaceship is moving with a constant velocity to the velocity direction.
  * */
-class SpaceshipSkyboxScreen extends HUDScreen {
+class SpaceshipHUDScreen extends HUDScreen {
     constructor(name, screen) {
         const control = new function() {
             // rotation of the spaceship around the z axis.
@@ -164,4 +164,4 @@ class SpaceshipSkyboxScreen extends HUDScreen {
     }
 }
 
-export { SpaceshipSkyboxScreen };
+export { SpaceshipHUDScreen };
