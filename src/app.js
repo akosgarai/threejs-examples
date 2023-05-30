@@ -17,6 +17,7 @@ import {SkyBoxScreen} from './screen/SkyBox.js';
 import {KeyboardControlScreen} from './screen/KeyboardControl.js';
 import {CSS3DRendererExampleScreen} from './screen/CSS3DRendererExample.js';
 import {SpaceshipHUDScreen} from './screen/SpaceshipHud.js';
+import {ShaderMaterialScreen} from './screen/ShaderMaterial.js';
 
 class Application {
     constructor() {
@@ -39,6 +40,7 @@ class Application {
         this.apps.push(new KeyboardControlScreen('Keyboard controls example', this.screen));
         this.apps.push(new CSS3DRendererExampleScreen('CSS3D Renderer example', this.screen));
         this.apps.push(new SpaceshipHUDScreen('Spaceship with HUD example', this.screen));
+        this.apps.push(new ShaderMaterialScreen('Shadermaterial', this.screen));
         this.controls = new function() {
             this.selectedApp = '';
         };
