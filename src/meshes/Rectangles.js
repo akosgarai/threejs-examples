@@ -38,7 +38,6 @@ class RectangleWithTexture {
         const material = new MeshBasicMaterial({ map: texture , transparent: this.transparent });
         const mesh = new Mesh(geometry, material);
         mesh.name = this.name;
-        mesh.name = this.name;
         return mesh;
     }
 }
